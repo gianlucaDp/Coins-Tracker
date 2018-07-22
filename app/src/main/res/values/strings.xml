@@ -15,4 +15,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_new_transaction">New Transaction</string>
+    <string name="add_new">Add new</string>
+    <string name="initial_value">Initial Value</string>
 </resources>

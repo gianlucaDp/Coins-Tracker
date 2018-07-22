@@ -11,12 +11,20 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".AppBaseActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".NewTransactionActivity"
+            android:label="@string/title_activity_new_transaction"
+            android:parentActivityName=".AppBaseActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.gianlucadp.coinstracker.AppBaseActivity" />
         </activity>
     </application>
 

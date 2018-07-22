@@ -3,13 +3,17 @@ package com.gianlucadp.coinstracker.supportClasses;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 
+import com.gianlucadp.coinstracker.R;
+import com.gianlucadp.coinstracker.model.TransactionGroup;
 import com.mikepenz.community_material_typeface_library.CommunityMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
 
 public class IconsManager {
 
     private static CommunityMaterial.Icon[] availableIcons = {
+            CommunityMaterial.Icon.cmd_circle,
             CommunityMaterial.Icon.cmd_star,
             CommunityMaterial.Icon.cmd_home,
             CommunityMaterial.Icon.cmd_phone,
@@ -42,6 +46,23 @@ public class IconsManager {
                 .sizeDp(size);
     }
 
-
+    public static int setColorBasedOnType(Context context, TransactionGroup.GroupType type) {
+        int color;
+        switch (type){
+            case REVENUE:
+                color = ContextCompat.getColor(context, R.color.blue);
+                break;
+            case DEPOSIT:
+                color = ContextCompat.getColor(context, R.color.yellow);
+                break;
+            case EXPENSE:
+                color = ContextCompat.getColor(context, R.color.red);
+                break;
+            default:
+                color = Color.LTGRAY;
+                break;
+        }
+        return color;
+    }
 
 }

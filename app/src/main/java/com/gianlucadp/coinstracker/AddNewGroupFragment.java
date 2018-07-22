@@ -78,7 +78,7 @@ public class AddNewGroupFragment extends DialogFragment implements AdapterView.O
         Spinner spin = view.findViewById(R.id.sp_icons);
         spin.setOnItemSelectedListener(this);
 
-        IconsArrayAdapter customAdapter = new IconsArrayAdapter(getContext());
+        IconsArrayAdapter customAdapter = new IconsArrayAdapter(getContext(),type);
         spin.setAdapter(customAdapter);
 
 

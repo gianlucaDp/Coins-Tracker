@@ -10,6 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import com.gianlucadp.coinstracker.R;
+import com.gianlucadp.coinstracker.model.TransactionGroup;
 import com.gianlucadp.coinstracker.supportClasses.IconsManager;
 import com.mikepenz.community_material_typeface_library.CommunityMaterial;
 
@@ -18,11 +19,13 @@ public class IconsArrayAdapter extends BaseAdapter {
     Context context;
     CommunityMaterial.Icon[] iconIds;
     LayoutInflater inflater;
+    TransactionGroup.GroupType groupType;
 
-    public IconsArrayAdapter(Context applicationContext) {
+    public IconsArrayAdapter(Context applicationContext, TransactionGroup.GroupType type) {
         this.context = applicationContext;
         this.iconIds = IconsManager.getAvailableIcons();
         inflater = (LayoutInflater.from(applicationContext));
+        this.groupType = type;
     }
 
     @Override
@@ -44,7 +47,7 @@ public class IconsArrayAdapter extends BaseAdapter {
     public View getView(int i, View view, ViewGroup viewGroup) {
         View row = inflater.inflate(R.layout.item_icon_list, viewGroup,false);
         ImageView icon =  row.findViewById(R.id.im_array_icon);
-        Drawable iconDrawable = IconsManager.createNewIcon(context,iconIds[i], Color.BLUE,24);
+        Drawable iconDrawable = IconsManager.createNewIcon(context,iconIds[i], IconsManager.setColorBasedOnType(context,groupType),24);
         icon.setImageDrawable(iconDrawable);
         return row;
     }

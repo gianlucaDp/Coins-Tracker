@@ -4,23 +4,22 @@ import android.content.ClipData;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.gianlucadp.coinstracker.AddNewGroupFragment;
 import com.gianlucadp.coinstracker.AppBaseActivity;
 import com.gianlucadp.coinstracker.R;
 import com.gianlucadp.coinstracker.model.TransactionGroup;
+import com.gianlucadp.coinstracker.model.TransactionValue;
+import com.gianlucadp.coinstracker.supportClasses.DatabaseManager;
 import com.gianlucadp.coinstracker.supportClasses.DragListener;
 import com.gianlucadp.coinstracker.supportClasses.IconsManager;
 import com.mikepenz.community_material_typeface_library.CommunityMaterial;
@@ -29,22 +28,23 @@ import com.mikepenz.iconics.IconicsDrawable;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGroupAdapter.GroupViewHolder> {
-    private Context context;
+    private Context mContext;
     private  TransactionGroup.GroupType elementsType;
     private List<TransactionGroup> transactionGroups;
-    private DragListener mListener;
 
 
 
     public TransactionGroupAdapter(Context context, TransactionGroup.GroupType elementsType, List<TransactionGroup> transactionGroups) {
-        this.context = context;
+        this.mContext = context;
         this.transactionGroups = transactionGroups;
         this.elementsType = elementsType;
     }
 
     public void setTransactionGroups(List<TransactionGroup> groups) {
         this.transactionGroups = groups;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -67,10 +67,21 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
         notifyDataSetChanged();
     }
 
+    public void updateGroup(TransactionGroup tobeUpdatedGroup){
+        for (int i=0;i< transactionGroups.size();i++) {
+            if (transactionGroups.get(i).getFirebaseId().equals(tobeUpdatedGroup.getFirebaseId())){
+                transactionGroups.set(i,tobeUpdatedGroup);
+                break;
+            }
+        }
+        notifyDataSetChanged();
+
+    }
+
     @Override
     public GroupViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         Context context = viewGroup.getContext();
-        int layoutIdForListItem = R.layout.item_recyclerview_transaction;
+        int layoutIdForListItem = R.layout.item_recyclerview_transaction_group;
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(layoutIdForListItem, viewGroup, false);
         return new GroupViewHolder(view);
@@ -86,6 +97,7 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
         else{
             holder.loadTransactionGroup(position);
             holder.initializeDragAndDrop(position);
+
         }
     }
 
@@ -94,7 +106,6 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
         private ImageView mImageViewIcon;
         private TextView mTextViewName;
         private TextView mTextViewValue;
-        private LinearLayout mItemContainer;
 
 
 
@@ -105,53 +116,52 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
             mImageViewIcon = view.findViewById(R.id.iv_icon_group_item);
             mTextViewName = view.findViewById(R.id.tv_item_name);
             mTextViewValue = view.findViewById(R.id.tv_item_value);
-            mItemContainer = view.findViewById(R.id.ll_transaction_group_container);
 
         }
 
         private void initializeDragAndDrop(int position){
             mImageViewIcon.setTag(position);
-            mImageViewIcon.setOnDragListener(new DragListener());
+            mImageViewIcon.setOnDragListener(new DragListener(mContext));
         }
 
         public void loadTransactionGroup(int position) {
             if (transactionGroups != null) {
                 TransactionGroup currentTransaction = transactionGroups.get(position);
-                int color;
-                switch (currentTransaction.getType()){
-                    case REVENUE:
-                        color =ContextCompat.getColor(context, R.color.green);
-                        break;
-                    case DEPOSIT:
-                        color = ContextCompat.getColor(context, R.color.yellow);
-                        break;
-                    case EXPENSE:
-                        color = ContextCompat.getColor(context, R.color.red);
-                        break;
-                        default:
-                        color = Color.LTGRAY;
-                            break;
-                }
-                Drawable addNewIcon = new IconicsDrawable(context)
+                int color = IconsManager.setColorBasedOnType(mContext,currentTransaction.getType());
+                Drawable addNewIcon = new IconicsDrawable(mContext)
                         .icon(currentTransaction.getImageId()).color(color).sizeDp(48);
                 mImageViewIcon.setImageDrawable(addNewIcon);
                 mImageViewIcon.setOnLongClickListener(mOnClickListener);
+                mImageViewIcon.setOnClickListener(null);
                 mTextViewName.setText(currentTransaction.getName());
+
+                float value = 0;
+
                 if (currentTransaction.getType()== TransactionGroup.GroupType.DEPOSIT) {
-                    mTextViewValue.setText(String.valueOf(currentTransaction.getInitialValue()));
-                }else{
-                    mTextViewValue.setText(String.valueOf(0));
+                    value+=  currentTransaction.getInitialValue();
+
                 }
+
+                if (currentTransaction.getTransactionsValue()!=null && currentTransaction.getTransactionsValue().size()>0){
+
+                    for (TransactionValue transaction:currentTransaction.getTransactionsValue()) {
+                        value+=transaction.getRealValue();
+                    }
+                    mTextViewValue.setText(String.valueOf(value));
+                }else{
+                    mTextViewValue.setText(String.valueOf(value));
+                }
+
             }
 
         }
 
 
         public void loadAddNewButton(){
-            Drawable addNewIcon  = IconsManager.createNewIcon(context,CommunityMaterial.Icon.cmd_plus_circle,Color.LTGRAY,56);
+            Drawable addNewIcon  = IconsManager.createNewIcon(mContext,CommunityMaterial.Icon.cmd_plus_circle,Color.LTGRAY,56);
             mImageViewIcon.setImageDrawable(addNewIcon);
             mImageViewIcon.setOnClickListener(mOnClickNewItemListener);
-            mTextViewName.setText("Add new");
+            mTextViewName.setText(R.string.add_new);
         }
 
 
@@ -171,10 +181,12 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
             @Override
             public void onClick(View view) {
                 DialogFragment addNewGroupFragment = AddNewGroupFragment.newInstance(elementsType);
-                addNewGroupFragment.show(((AppBaseActivity)context).getSupportFragmentManager(), "dialog");
+                addNewGroupFragment.show(((AppBaseActivity) mContext).getSupportFragmentManager(), "dialog");
             }
         };
+
     }
+
 
 
 

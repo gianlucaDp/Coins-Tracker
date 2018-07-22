@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.LayoutInflaterCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -17,7 +19,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.firebase.ui.auth.AuthUI;
+import com.gianlucadp.coinstracker.model.Transaction;
 import com.gianlucadp.coinstracker.model.TransactionGroup;
+import com.gianlucadp.coinstracker.model.TransactionValue;
+import com.gianlucadp.coinstracker.supportClasses.DatabaseManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -27,7 +32,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.mikepenz.iconics.context.IconicsLayoutInflater2;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AppBaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, AddNewGroupFragment.OnGroupCreatedListener {
     public static final int RC_SIGN_IN = 1;
@@ -45,8 +53,17 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mFirebaseAuthListener;
     private DatabaseReference mDatabase;
+    private DatabaseReference mDataBaseTransactionGroups;
     private DatabaseReference mDataBaseTransactions;
     private ChildEventListener mTransactionGroupsEventListener;
+    private ChildEventListener mTransactionsEventListener;
+
+
+    //data
+    private Map<String, TransactionGroup> mRevenuesGroups;
+    private Map<String, TransactionGroup> mDepositsGroups;
+    private Map<String, TransactionGroup> mExpensesGroups;
+    private Map<String, Transaction> mTransactions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,10 +87,11 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
         //Initialize Firebase db
         if (mDatabase == null) {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
-            if (savedInstanceState==null) {
+            if (savedInstanceState == null) {
                 database.setPersistenceEnabled(true); //To work with offline data too
             }
             mDatabase = database.getReference();
+            DatabaseManager.setDatabase(mDatabase);
         }
 
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -111,6 +129,12 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
             fragmentManager.beginTransaction()
                     .add(R.id.fm_fragments_container, mainFragment)
                     .commit();
+
+            // Check should be ordered? It is a map really necessary???
+            mRevenuesGroups = new HashMap<>();
+            mDepositsGroups = new HashMap<>();
+            mExpensesGroups = new HashMap<>();
+            mTransactions = new HashMap<>();
         }
     }
 
@@ -158,9 +182,10 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
     private void onSignedInitialize(FirebaseUser user) {
         mUsername = user.getDisplayName();
         mUserId = user.getUid();
-
         // Add a reference to transaction groups and transactions
-        mDataBaseTransactions = mDatabase.child("users").child(mUserId).child("transaction_groups");
+        DatabaseReference[] references = DatabaseManager.addUser(mUserId);
+        mDataBaseTransactionGroups = references[0];
+        mDataBaseTransactions = references[1];
         attachDatabaseReadListener();
 
     }
@@ -199,6 +224,12 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
         } else if (id == R.id.menu_item_history) {
 
         } else if (id == R.id.menu_item_statistics) {
+            Fragment newFragment = new StatisticsFragment().newInstance( new ArrayList<Transaction>(mTransactions.values()));
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+            transaction.replace(R.id.fm_fragments_container, newFragment);
+
+            transaction.commit();
 
         }
 
@@ -210,67 +241,158 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
         //Handle the listener for transactions groups
         if (mTransactionGroupsEventListener == null) {
             mTransactionGroupsEventListener = new ChildEventListener() {
+
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                    TransactionsListFragment transactionsListFragment = (TransactionsListFragment) getSupportFragmentManager().findFragmentById(R.id.fm_fragments_container);
+
                     TransactionGroup transactionGroup = dataSnapshot.getValue(TransactionGroup.class);
                     transactionGroup.setFirebaseId(dataSnapshot.getKey());
-                    switch (transactionGroup.getType()) {
-                        case REVENUE:
-                            transactionsListFragment.getRevenueAdapter().addItem(transactionGroup);
-                            break;
-                        case DEPOSIT:
-                            transactionsListFragment.getDepositAdapter().addItem(transactionGroup);
-                            break;
-                        case EXPENSE:
-                            transactionsListFragment.getExpenseAdapter().addItem(transactionGroup);
-                            break;
-                        default:
-                            break;
+                    addValuesToGroup(dataSnapshot, transactionGroup);
+
+                    if (transactionGroup.getType() != null) {
+                        TransactionsListFragment transactionsListFragment = (TransactionsListFragment) getSupportFragmentManager().findFragmentById(R.id.fm_fragments_container);
+                        switch (transactionGroup.getType()) {
+                            case REVENUE:
+                                mRevenuesGroups.put(dataSnapshot.getKey(), transactionGroup);
+                                transactionsListFragment.getRevenueAdapter().addItem(transactionGroup);
+                                Log.d("AAA","revenue added");
+
+                                break;
+                            case DEPOSIT:
+                                mDepositsGroups.put(dataSnapshot.getKey(), transactionGroup);
+                                transactionsListFragment.getDepositAdapter().addItem(transactionGroup);
+                                Log.d("AAA","deposit added");
+
+                                break;
+                            case EXPENSE:
+                                mExpensesGroups.put(dataSnapshot.getKey(), transactionGroup);
+                                transactionsListFragment.getExpenseAdapter().addItem(transactionGroup);
+                                Log.d("AAA","expense added");
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+
+                private void addValuesToGroup(@NonNull DataSnapshot dataSnapshot, TransactionGroup transactionGroup) {
+                    if (dataSnapshot.hasChild("flows")){
+                        DataSnapshot flowsSnapShot = dataSnapshot.child("flows");
+                        if (flowsSnapShot.hasChildren()) {
+                            Iterable<DataSnapshot> flowChildren = flowsSnapShot.getChildren();
+                            for (DataSnapshot flow : flowChildren) {
+                                TransactionValue tv = flow.getValue(TransactionValue.class);
+                                tv.setTransactionValueFirebaseId(flow.getKey());
+                                transactionGroup.addTransactionValue(tv);
+
+                            }
+                        }
                     }
                 }
 
                 @Override
                 public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    TransactionGroup transactionGroup = dataSnapshot.getValue(TransactionGroup.class);
+                    transactionGroup.setFirebaseId(dataSnapshot.getKey());
+                    addValuesToGroup(dataSnapshot, transactionGroup);
 
+                    if (transactionGroup.getType() != null) {
+                        TransactionsListFragment transactionsListFragment = (TransactionsListFragment) getSupportFragmentManager().findFragmentById(R.id.fm_fragments_container);
+                        switch (transactionGroup.getType()) {
+                            case REVENUE:
+                                Log.d("AAA","revenue changed");
+                                mRevenuesGroups.put(dataSnapshot.getKey(), transactionGroup);
+                                transactionsListFragment.getRevenueAdapter().updateGroup(transactionGroup);
+                                break;
+                            case DEPOSIT:
+                                mDepositsGroups.put(dataSnapshot.getKey(), transactionGroup);
+                                transactionsListFragment.getDepositAdapter().updateGroup(transactionGroup);
+                                Log.d("AAA","deposit changed");
+                                break;
+                            case EXPENSE:
+                                mExpensesGroups.put(dataSnapshot.getKey(), transactionGroup);
+                                transactionsListFragment.getExpenseAdapter().updateGroup(transactionGroup);
+                                Log.d("AAA","expense changed");
+                                break;
+                            default:
+                                break;
+                        }
+                    }
                 }
 
                 @Override
                 public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
                 }
 
                 @Override
                 public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-
                 }
             };
 
-            mDataBaseTransactions.addChildEventListener(mTransactionGroupsEventListener);
+            mDataBaseTransactionGroups.addChildEventListener(mTransactionGroupsEventListener);
         }
 
 
+        //Handle the listener for transactions
+        if (mTransactionsEventListener == null) {
+            mTransactionsEventListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                    Transaction transaction = dataSnapshot.getValue(Transaction.class);
+                    transaction.setFirebaseId(dataSnapshot.getKey());
+                    mTransactions.put(dataSnapshot.getKey(), transaction);
+                    Log.d("AAA", "added transaction");
+                }
+
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    //
+                }
+
+                @Override
+                public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                }
+
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                }
+            };
+
+            mDataBaseTransactions.addChildEventListener(mTransactionsEventListener);
+        }
     }
 
     private void detachDatabaseReadListener() {
 
         if (mTransactionGroupsEventListener != null) {
-            mDataBaseTransactions.removeEventListener(mTransactionGroupsEventListener);
+            mDataBaseTransactionGroups.removeEventListener(mTransactionGroupsEventListener);
             mTransactionGroupsEventListener = null;
+        }
+
+        if (mTransactionsEventListener != null) {
+            mDataBaseTransactions.removeEventListener(mTransactionsEventListener);
+            mTransactionsEventListener = null;
         }
     }
 
 
     @Override
     public void onGroupCreated(TransactionGroup transactionGroup) {
-        mDatabase.child("users").child(mUserId).child("transaction_groups").push().setValue(transactionGroup);
-
+        DatabaseManager.addTransactionGroup(transactionGroup);
     }
 
+    public TransactionGroup getGroup(String groupId) {
+
+        return null;
+    }
 
 }

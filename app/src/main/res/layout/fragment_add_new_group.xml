@@ -1,77 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:layout_editor_absoluteY="81dp">
-
-    <TextView
-        android:id="@+id/tv_add_new_group_title"
-        android:layout_width="113dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="12dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="52dp"
-        android:text="@string/select_an_icon"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toStartOf="@+id/sp_icons"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_insert_group_name" />
-
-    <Spinner
-        android:id="@+id/sp_icons"
-        android:layout_width="123dp"
-        android:layout_height="49dp"
-        android:layout_marginEnd="84dp"
-        android:layout_marginTop="44dp"
-        android:spinnerMode="dropdown"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_insert_group_name" />
-
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
     <EditText
         android:id="@+id/et_insert_group_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="@string/insert_name_group"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.156"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="HardcodedText" />
+        android:ems="8"
+        android:hint="@string/insert_name_group"
+        android:padding="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="20dp"
+        android:maxLength="8"
 
-    <EditText
-        android:id="@+id/et_initial_value"
-        android:layout_width="123dp"
-        android:layout_height="36dp"
-        android:layout_marginEnd="84dp"
-        android:layout_marginTop="44dp"
-        android:ems="10"
-        android:inputType="number"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sp_icons" />
-
-    <TextView
-        android:id="@+id/tv_initial_value_label"
+        />
+    <ImageView
+        android:id="@+id/iv_name_warning"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="68dp"
-        android:text="Initial Value"
-        android:textSize="18sp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toStartOf="@+id/et_initial_value"
-        app:layout_constraintHorizontal_bias="0.623"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_add_new_group_title" />
+        android:src="@drawable/ic_warning_24dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="5dp"/>
+</LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-</android.support.constraint.ConstraintLayout>
+        <TextView
+            android:id="@+id/tv_add_new_group_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:text="@string/select_an_icon"
+            android:textSize="18sp" />
+
+        <Spinner
+            android:id="@+id/sp_icons"
+            android:layout_width="120dp"
+            android:layout_height="50dp"
+            android:spinnerMode="dropdown"
+            android:layout_marginTop="15dp"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        >
+
+        <TextView
+            android:id="@+id/tv_initial_value_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/initial_value"
+            android:textSize="18sp"
+            android:visibility="gone"
+            android:padding="20dp"/>
+
+        <EditText
+            android:id="@+id/et_initial_value"
+            android:layout_width="120dp"
+            android:layout_height="50dp"
+            android:ems="10"
+            android:inputType="number"
+            android:visibility="gone"
+            android:layout_gravity="center"/>
+
+        <ImageView
+            android:id="@+id/iv_value_warning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_warning_24dp"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            android:layout_marginStart="5dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>
