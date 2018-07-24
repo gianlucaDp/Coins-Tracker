@@ -20,17 +20,20 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 
 public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapter.TransactionViewHolder> {
     private Context mContext;
     private List<Transaction> transactions;
+    private Map<String,TransactionGroup> mGroups;
 
 
-
-    public TransactionsAdapter(Context context, TransactionGroup.GroupType elementsType, List<Transaction> transactions) {
+    public TransactionsAdapter(Context context, List<Transaction> transactions, Map<String,TransactionGroup> groupMap) {
         this.mContext = context;
         this.transactions = transactions;
+        this.mGroups = groupMap;
+
     }
 
     public void setTransactions(List<Transaction> transactions) {
@@ -71,7 +74,7 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
 
     @Override
     public void onBindViewHolder(TransactionViewHolder holder, int position) {
-            holder.loadTransactionGroup(position);
+        holder.loadTransactionGroup(position);
     }
 
 
@@ -84,18 +87,15 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
         private TextView mTextViewDate;
 
 
-
-
-
         public TransactionViewHolder(View view) {
             super(view);
 
-            mImageViewIconFrom= view.findViewById(R.id.im_from_group);
-            mTextViewFrom= view.findViewById(R.id.tv_from_group);
-            mImageViewIconTo= view.findViewById(R.id.im_to_group);
-            mTextViewTo= view.findViewById(R.id.tv_to_group);
-            mTextViewValue= view.findViewById(R.id.tv_date);
-            mTextViewDate= view.findViewById(R.id.tv_value);
+            mImageViewIconFrom = view.findViewById(R.id.im_from_group);
+            mTextViewFrom = view.findViewById(R.id.tv_from_group);
+            mImageViewIconTo = view.findViewById(R.id.im_to_group);
+            mTextViewTo = view.findViewById(R.id.tv_to_group);
+            mTextViewValue = view.findViewById(R.id.tv_date);
+            mTextViewDate = view.findViewById(R.id.tv_value);
         }
 
 
@@ -106,8 +106,8 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
                 String fromGroupId = currentTransaction.getFromGroup();
                 String toGroupId = currentTransaction.getToGroup();
 
-                TransactionGroup fromGroup = ((AppBaseActivity) mContext).getGroup(fromGroupId);
-                TransactionGroup toGroup = ((AppBaseActivity) mContext).getGroup(toGroupId);
+                TransactionGroup fromGroup = mGroups.get(fromGroupId);
+                TransactionGroup toGroup =   mGroups.get(toGroupId);
 
                 int colorFrom = IconsManager.setColorBasedOnType(mContext,fromGroup.getType());
                 Drawable fromIcon = new IconicsDrawable(mContext).icon(fromGroup.getImageId()).color(colorFrom).sizeDp(40);
@@ -122,8 +122,10 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
                 mTextViewTo.setText(toGroup.getName());
 
                 mTextViewValue.setText(String.valueOf(currentTransaction.getValue()));
-                //Todo: add date
-                mTextViewDate.setText("11-11-2018");
+
+                long dateValue = currentTransaction.getTimestamp();
+                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+                mTextViewDate.setText(sdf.format(new Date(dateValue)));
 
 
             }

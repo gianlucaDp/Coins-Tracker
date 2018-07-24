@@ -2,6 +2,8 @@ package com.gianlucadp.coinstracker;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -23,6 +25,8 @@ import com.gianlucadp.coinstracker.model.Transaction;
 import com.gianlucadp.coinstracker.model.TransactionGroup;
 import com.gianlucadp.coinstracker.model.TransactionValue;
 import com.gianlucadp.coinstracker.supportClasses.DatabaseManager;
+import com.gianlucadp.coinstracker.supportClasses.Utilities;
+import com.google.firebase.FirebaseError;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -30,15 +34,18 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.mikepenz.iconics.context.IconicsLayoutInflater2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class AppBaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, AddNewGroupFragment.OnGroupCreatedListener {
     public static final int RC_SIGN_IN = 1;
+    private static final String CURRENT_FRAGMENT_KEY = "CF_KEY";
 
 
     private DrawerLayout mDrawerLayout;
@@ -65,12 +72,23 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
     private Map<String, TransactionGroup> mExpensesGroups;
     private Map<String, Transaction> mTransactions;
 
+    private String currentFragment = TransactionsListFragment.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //To enable Android Iconics
         LayoutInflaterCompat.setFactory2(getLayoutInflater(), new IconicsLayoutInflater2(getDelegate()));
-
         super.onCreate(savedInstanceState);
+
+
+        if (savedInstanceState!=null){
+            Utilities.readMapTGFromBundle(savedInstanceState,mRevenuesGroups);
+            Utilities.readMapTGFromBundle(savedInstanceState,mDepositsGroups);
+            Utilities.readMapTGFromBundle(savedInstanceState,mExpensesGroups);
+            Utilities.readMapTFromBundle(savedInstanceState,mTransactions);
+            currentFragment = savedInstanceState.getString(CURRENT_FRAGMENT_KEY);
+
+        }
 
         //Initialize view
         setContentView(R.layout.activity_app_base);
@@ -130,12 +148,22 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
                     .add(R.id.fm_fragments_container, mainFragment)
                     .commit();
 
-            // Check should be ordered? It is a map really necessary???
-            mRevenuesGroups = new HashMap<>();
-            mDepositsGroups = new HashMap<>();
-            mExpensesGroups = new HashMap<>();
-            mTransactions = new HashMap<>();
+
+            mRevenuesGroups = new TreeMap<>();
+            mDepositsGroups = new TreeMap<>();
+            mExpensesGroups = new TreeMap<>();
+            mTransactions = new TreeMap<>();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Utilities.writeMapTGAsBundle(outState,mRevenuesGroups);
+        Utilities.writeMapTGAsBundle(outState,mDepositsGroups);
+        Utilities.writeMapTGAsBundle(outState,mExpensesGroups);
+        Utilities.writeMapTAsBundle(outState,mTransactions);
+        outState.putString(CURRENT_FRAGMENT_KEY,currentFragment);
     }
 
     @Override
@@ -213,24 +241,44 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.menu_item_main_page) {
+            if (!currentFragment.equals(TransactionsListFragment.class.getSimpleName())) {
+                Fragment newFragment = new TransactionsListFragment().newInstance(new ArrayList<TransactionGroup>(mRevenuesGroups.values()),new ArrayList<TransactionGroup>(mDepositsGroups.values()),new ArrayList<TransactionGroup>(mExpensesGroups.values()));
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+                transaction.replace(R.id.fm_fragments_container, newFragment);
+                transaction.commit();
+
+                currentFragment = TransactionsListFragment.class.getSimpleName();
+            }
 
         } else if (id == R.id.menu_item_history) {
 
-        } else if (id == R.id.menu_item_statistics) {
-            Fragment newFragment = new StatisticsFragment().newInstance( new ArrayList<Transaction>(mTransactions.values()));
+            HashMap<String,TransactionGroup> mergedMap = Utilities.mergeMaps(mRevenuesGroups,mDepositsGroups,mExpensesGroups);
+            Fragment newFragment = new TransactionsHistoryFragment().newInstance(new ArrayList<Transaction>(mTransactions.values()),mergedMap);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
             transaction.replace(R.id.fm_fragments_container, newFragment);
-
             transaction.commit();
 
+            currentFragment = TransactionsHistoryFragment.class.getSimpleName();
+
+        } else if (id == R.id.menu_item_statistics) {
+
+            if (!currentFragment.equals(StatisticsFragment.class.getSimpleName())) {
+                Fragment newFragment = new StatisticsFragment().newInstance(new ArrayList<Transaction>(mTransactions.values()));
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+                transaction.replace(R.id.fm_fragments_container, newFragment);
+                transaction.commit();
+
+                currentFragment = StatisticsFragment.class.getSimpleName();
+            }
         }
 
         mDrawerLayout.closeDrawer(GravityCompat.START);
@@ -334,6 +382,17 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
             };
 
             mDataBaseTransactionGroups.addChildEventListener(mTransactionGroupsEventListener);
+            mDataBaseTransactionGroups.addListenerForSingleValueEvent(new ValueEventListener() {
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    //When all the data is loaded
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
         }
 
 
@@ -390,9 +449,6 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
         DatabaseManager.addTransactionGroup(transactionGroup);
     }
 
-    public TransactionGroup getGroup(String groupId) {
 
-        return null;
-    }
 
 }

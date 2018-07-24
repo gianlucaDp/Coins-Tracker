@@ -9,9 +9,16 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.gianlucadp.coinstracker.adapters.TransactionGroupAdapter;
+import com.gianlucadp.coinstracker.model.Transaction;
 import com.gianlucadp.coinstracker.model.TransactionGroup;
+import com.google.android.gms.ads.MobileAds;
+
+import java.util.ArrayList;
 
 public class TransactionsListFragment extends Fragment {
+    private static final String ARG_PARAM1 = "revenue_tg_list";
+    private static final String ARG_PARAM2 = "deposit_tg_list";
+    private static final String ARG_PARAM3 = "expense_tg_list";
 
     RecyclerView mRevenueRecyclerView;
     TransactionGroupAdapter mRevenueAdapter;
@@ -39,6 +46,16 @@ public class TransactionsListFragment extends Fragment {
     public TransactionsListFragment() {
     }
 
+    public static TransactionsListFragment newInstance(ArrayList<TransactionGroup> revenueGroup,ArrayList<TransactionGroup> depositGroup, ArrayList<TransactionGroup> expenseGroup) {
+        TransactionsListFragment fragment = new TransactionsListFragment();
+        Bundle args = new Bundle();
+        args.putParcelableArrayList(ARG_PARAM1, revenueGroup);
+        args.putParcelableArrayList(ARG_PARAM2, depositGroup);
+        args.putParcelableArrayList(ARG_PARAM3, expenseGroup);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -48,9 +65,23 @@ public class TransactionsListFragment extends Fragment {
         mDepositRecyclerView = rootView.findViewById(R.id.rv_deposits);
         mExpenseRecyclerView = rootView.findViewById(R.id.rv_expenses);
 
-        mRevenueAdapter = new TransactionGroupAdapter(getContext(),TransactionGroup.GroupType.REVENUE,null);
-        mDepositAdapter = new TransactionGroupAdapter(getContext(),TransactionGroup.GroupType.DEPOSIT,null);
-        mExpenseAdapter = new TransactionGroupAdapter(getContext(),TransactionGroup.GroupType.EXPENSE,null);
+        ArrayList<TransactionGroup> revenues = null;
+        ArrayList<TransactionGroup> deposits = null;
+        ArrayList<TransactionGroup> expenses = null;
+
+
+        if (getArguments() != null) {
+            revenues = getArguments().getParcelableArrayList(ARG_PARAM1);
+
+            deposits = getArguments().getParcelableArrayList(ARG_PARAM2);
+
+            expenses = getArguments().getParcelableArrayList(ARG_PARAM3);
+
+
+        }
+        mRevenueAdapter = new TransactionGroupAdapter(getContext(),TransactionGroup.GroupType.REVENUE,revenues);
+        mDepositAdapter = new TransactionGroupAdapter(getContext(),TransactionGroup.GroupType.DEPOSIT,deposits);
+        mExpenseAdapter = new TransactionGroupAdapter(getContext(),TransactionGroup.GroupType.EXPENSE,expenses);
 
         buildRecycleView(mRevenueRecyclerView,mRevenueAdapter);
         buildRecycleView(mDepositRecyclerView,mDepositAdapter);
