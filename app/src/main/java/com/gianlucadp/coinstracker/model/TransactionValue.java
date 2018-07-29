@@ -7,7 +7,7 @@ import android.os.Parcelable;
 import com.google.firebase.database.Exclude;
 
 public class TransactionValue implements Parcelable {
-    private String transactionFirebaseId;
+    private String transactionId;
     private float value;
     private boolean isExpense;
     @Exclude
@@ -16,18 +16,18 @@ public class TransactionValue implements Parcelable {
 
     public TransactionValue(){}
 
-    public TransactionValue(String transactionFirebaseId, float value, boolean isExpense){
-        this.transactionFirebaseId = transactionFirebaseId;
+    public TransactionValue(String transactionId, float value, boolean isExpense){
+        this.transactionId = transactionId;
         this.isExpense = isExpense;
         this.value = value;
     }
 
-    public String getTransactionFirebaseId() {
-        return transactionFirebaseId;
+    public String getTransactionId() {
+        return transactionId;
     }
 
-    public void setTransactionFirebaseId(String transactionFirebaseId) {
-        this.transactionFirebaseId = transactionFirebaseId;
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
     }
 
     public float getValue() {
@@ -71,14 +71,14 @@ public class TransactionValue implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.transactionFirebaseId);
+        dest.writeString(this.transactionId);
         dest.writeFloat(this.value);
         dest.writeByte(this.isExpense ? (byte) 1 : (byte) 0);
         dest.writeString(this.transactionValueFirebaseId);
     }
 
     protected TransactionValue(Parcel in) {
-        this.transactionFirebaseId = in.readString();
+        this.transactionId = in.readString();
         this.value = in.readFloat();
         this.isExpense = in.readByte() != 0;
         this.transactionValueFirebaseId = in.readString();

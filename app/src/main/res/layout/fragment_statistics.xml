@@ -45,14 +45,17 @@
 
                 android:padding="3dp" />
             <TextView
+                android:id="@+id/tv_min_income"
                 android:text=""
                 android:gravity="center"
                 android:padding="3dp" />
             <TextView
+                android:id="@+id/tv_min_expense"
                 android:text=""
                 android:gravity="center"
                 android:padding="3dp" />
             <TextView
+                android:id="@+id/tv_min_net"
                 android:text=  ""
                 android:gravity="center"
                 android:padding="3dp" />
@@ -64,14 +67,17 @@
                 android:gravity="center"
                 android:padding="3dp" />
             <TextView
+                android:id="@+id/tv_max_income"
                 android:text=""
                 android:gravity="center"
                 android:padding="3dp" />
             <TextView
+                android:id="@+id/tv_max_expense"
                 android:text=""
                 android:gravity="center"
                 android:padding="3dp" />
             <TextView
+                android:id="@+id/tv_max_net"
                 android:text=  ""
                 android:gravity="center"
                 android:padding="3dp" />
@@ -83,17 +89,20 @@
                 android:gravity="center"
                 android:padding="3dip" />
             <TextView
+                android:id="@+id/tv_mean_income"
                 android:text=""
                 android:gravity="center"
-                android:padding="3dip" />
+                android:padding="3dp" />
             <TextView
+                android:id="@+id/tv_mean_expense"
                 android:text=""
                 android:gravity="center"
-                android:padding="3dip" />
+                android:padding="3dp" />
             <TextView
+                android:id="@+id/tv_mean_net"
                 android:text=  ""
                 android:gravity="center"
-                android:padding="3dip" />
+                android:padding="3dp" />
         </TableRow>
     </TableLayout>
 

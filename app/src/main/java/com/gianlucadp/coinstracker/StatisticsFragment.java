@@ -3,12 +3,14 @@ package com.gianlucadp.coinstracker;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.gianlucadp.coinstracker.model.Transaction;
 import com.google.android.gms.ads.MobileAds;
@@ -17,23 +19,39 @@ import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 
 public class StatisticsFragment extends Fragment {
     private static final String ARG_PARAM1 = "transactions";
 
     private GraphView mGraphView;
+    private TextView mMinIncome;
+    private TextView mMaxIncome;
+    private TextView mMeanIncome;
+
+    private TextView mMinExpense;
+    private TextView mMaxExpense;
+    private TextView mMeanExpense;
+
+    private TextView mMinNetValue;
+    private TextView mMaxNetValue;
+    private TextView mMeanNetValue;
+
     private ArrayList<Transaction> mTransactions;
 
     public StatisticsFragment() {
         // Required empty public constructor
     }
+
+
 
     /**
      * Use this factory method to create a new instance of
@@ -51,10 +69,20 @@ public class StatisticsFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         Log.d("AAA", "Start of on view created");
         mGraphView = view.findViewById(R.id.graph);
+        mMinIncome = view.findViewById(R.id.tv_min_income);
+        mMaxIncome = view.findViewById(R.id.tv_max_income);
+        mMeanIncome = view.findViewById(R.id.tv_mean_income);
 
+        mMinExpense = view.findViewById(R.id.tv_min_expense);
+        mMaxExpense = view.findViewById(R.id.tv_max_expense);
+        mMeanExpense = view.findViewById(R.id.tv_mean_expense);
+
+        mMinNetValue = view.findViewById(R.id.tv_min_net);
+        mMaxNetValue = view.findViewById(R.id.tv_max_net);
+        mMeanNetValue = view.findViewById(R.id.tv_mean_net);
         new GenerateData().execute();
 
     }
@@ -71,7 +99,7 @@ public class StatisticsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         return inflater.inflate(R.layout.fragment_statistics, container, false);
@@ -96,9 +124,9 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
         private float minValue = 0;
         private float maxValue = 1000;
 
-        private float mMinNet=0;
-        private float mMinIn=0;
-        private float mMinOut=0;
+        private float mMinNet=Float.MAX_VALUE;
+        private float mMinIn=Float.MAX_VALUE;
+        private float mMinOut=Float.MAX_VALUE;
 
         private float mMaxNet=0;
         private float mMaxIn=0;
@@ -114,8 +142,6 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
             ArrayList<Transaction> transactions =  mTransactions;
             for (Transaction transaction: transactions) {
                 long dateValue = transaction.getTimestamp();
-                //Rounding to day value
-                dateValue -= (dateValue%(24*1000*60*60));
 
                 if (dateValue > mMaxDate) {
                     mMaxDate = dateValue;
@@ -125,8 +151,6 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
                 }
 
                 float value = transaction.getValue();
-
-
 
                 if (transaction.isExpense()) {
 
@@ -139,15 +163,11 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
                     value *= -1;
                 } else {
 
-
-
                     if (!mRevenuesByDay.containsKey(dateValue)) {
                         mRevenuesByDay.put(dateValue, value);
                     } else {
                         mRevenuesByDay.put(dateValue, mRevenuesByDay.get(dateValue) + value);
                     }
-
-
                 }
 
                 if (!mNetByDay.containsKey(dateValue)) {
@@ -158,17 +178,22 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
             }
 
 
-            DataPoint[] inValues = new DataPoint[mRevenuesByDay.size()];
-            DataPoint[] outValues = new DataPoint[mExpensesByDay.size()];
+            DataPoint[] inValues = new DataPoint[mNetByDay.size()];
+            DataPoint[] outValues = new DataPoint[mNetByDay.size()];
             DataPoint[] netValues = new DataPoint[mNetByDay.size()];
 
             int i = 0;
             int j = 0;
             int k = 0;
 
+
             for (Long date: asSortedList(mNetByDay.keySet())){
+
                 if (mRevenuesByDay.containsKey(date)) {
                     float inValue = mRevenuesByDay.get(date);
+                    if (i>0){
+                        inValue += inValues[i-1].getY();
+                    }
                     inValues[i] = new DataPoint(new Date(date), inValue);
                     i++;
 
@@ -182,9 +207,22 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
 
                     mMeanIn += inValue;
 
+
+                }else if (i>0){
+
+                    inValues[i] = new DataPoint(new Date(date), inValues[i-1].getY());
+                    i++;
+                }else{
+                    inValues[i] = new DataPoint(new Date(date), 0);
+                    i++;
                 }
+
                 if (mExpensesByDay.containsKey(date)) {
                     float outValue = mExpensesByDay.get(date);
+                    if (j>0){
+                        outValue += outValues[j-1].getY();
+                    }
+
                     outValues[j] = new DataPoint(new Date(date), outValue);
                     j++;
 
@@ -198,9 +236,19 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
 
                     mMeanOut += outValue;
 
-
+                }else if (j>0){
+                    outValues[j] = new DataPoint(new Date(date), outValues[j-1].getY());
+                    j++;
+            }else{
+                    outValues[j] = new DataPoint(new Date(date), 0);
+                    j++;
                 }
+
+
                 float netValue = mNetByDay.get(date);
+                if (k>0){
+                    netValue += netValues[k-1].getY();
+                }
                 netValues[k] = new DataPoint(new Date(date),netValue);
 
                 if (netValue<mMinNet){
@@ -228,6 +276,20 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
 
 
             List<DataPoint[]> points = new ArrayList<>();
+            for (DataPoint point: inValues) {
+                Log.d("AAA",point.toString());
+            }
+            Log.d("AAA","----");
+            for (DataPoint point: outValues) {
+                Log.d("AAA",point.toString());
+            }
+            Log.d("AAA","----");
+
+            for (DataPoint point: netValues) {
+                Log.d("AAA",point.toString());
+            }
+            Log.d("AAA","----");
+
             points.add(inValues);
             points.add(outValues);
             points.add(netValues);
@@ -267,16 +329,41 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
                 // is not necessary
                 mGraphView.getGridLabelRenderer().setHumanRounding(false);
 
-                mGraphView.setVisibility(View.VISIBLE);
+
 
 
             }else{
                 //Else no points are available, load default value
                 Date date = new Date();
                 mGraphView.getViewport().setMinX(date.getTime());
-                mGraphView.getViewport().setMaxX(date.getTime()+ 24*1000*60*60);
+                mGraphView.getViewport().setMaxX(date.getTime()+ TimeUnit.DAYS.toSeconds(1));
 
             }
+
+            if(mMinNet==Float.MAX_VALUE){
+                mMinNet = 0;
+            };
+            if(mMinOut==Float.MAX_VALUE){
+                mMinOut = 0;
+            };
+            if(mMinIn==Float.MAX_VALUE){
+                mMinIn = 0;
+            };
+
+            mGraphView.setVisibility(View.VISIBLE);
+
+            mMinIncome.setText(String.valueOf(mMinIn));
+            mMaxIncome.setText(String.valueOf(mMaxIn));
+            mMeanIncome.setText(new DecimalFormat("##.##").format(mMeanIn));
+
+            mMinExpense.setText(String.valueOf(mMinOut));
+            mMaxExpense.setText(String.valueOf(mMaxOut));
+            mMeanExpense.setText(new DecimalFormat("##.##").format(mMeanOut));
+
+            mMinNetValue.setText(String.valueOf(mMinNet));
+            mMaxNetValue.setText(String.valueOf(mMaxNet));
+            mMeanNetValue.setText(new DecimalFormat("##.##").format(mMeanNet));
+
 
         }
 

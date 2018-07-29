@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.gianlucadp.coinstracker">
-
+    <uses-permission android:name="android.permission.VIBRATE"></uses-permission>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -26,6 +26,25 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.gianlucadp.coinstracker.AppBaseActivity" />
         </activity>
+
+        <service
+            android:name=".reminder.TransactionReminder"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
+            </intent-filter>
+        </service>
+
+        <receiver android:name=".StatusWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/status_widget_provider_info" />
+        </receiver>
+
     </application>
 
 </manifest>

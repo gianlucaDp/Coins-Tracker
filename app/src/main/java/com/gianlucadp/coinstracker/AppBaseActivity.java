@@ -1,9 +1,13 @@
 package com.gianlucadp.coinstracker;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -19,14 +23,17 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.firebase.ui.auth.AuthUI;
 import com.gianlucadp.coinstracker.model.Transaction;
 import com.gianlucadp.coinstracker.model.TransactionGroup;
 import com.gianlucadp.coinstracker.model.TransactionValue;
+import com.gianlucadp.coinstracker.reminder.ReminderUtilities;
+import com.gianlucadp.coinstracker.supportClasses.Constants;
 import com.gianlucadp.coinstracker.supportClasses.DatabaseManager;
 import com.gianlucadp.coinstracker.supportClasses.Utilities;
-import com.google.firebase.FirebaseError;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -40,12 +47,15 @@ import com.mikepenz.iconics.context.IconicsLayoutInflater2;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class AppBaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, AddNewGroupFragment.OnGroupCreatedListener {
+public class AppBaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, AddNewGroupFragment.OnGroupCreatedListener, TransactionsHistoryFragment.OnTransactionInteractionListener {
     public static final int RC_SIGN_IN = 1;
     private static final String CURRENT_FRAGMENT_KEY = "CF_KEY";
+    private static final String EXPENSE_KEY = "EXPENSE_KEY";
+    private static final String REVENUE_KEY = "REVENUE_KEY";
 
 
     private DrawerLayout mDrawerLayout;
@@ -54,6 +64,7 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
     //User info
     private static String mUsername;
     private static String mUserId;
+    private static String mUserMail;
 
 
     //Firebase variables
@@ -71,11 +82,16 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
     private Map<String, TransactionGroup> mDepositsGroups;
     private Map<String, TransactionGroup> mExpensesGroups;
     private Map<String, Transaction> mTransactions;
+    private volatile float mTotalExpenses = 0;
+    private volatile float mTotalRevenues = 0;
 
     private String currentFragment = TransactionsListFragment.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
         //To enable Android Iconics
         LayoutInflaterCompat.setFactory2(getLayoutInflater(), new IconicsLayoutInflater2(getDelegate()));
         super.onCreate(savedInstanceState);
@@ -87,13 +103,15 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
             Utilities.readMapTGFromBundle(savedInstanceState,mExpensesGroups);
             Utilities.readMapTFromBundle(savedInstanceState,mTransactions);
             currentFragment = savedInstanceState.getString(CURRENT_FRAGMENT_KEY);
-
+            mTotalExpenses = savedInstanceState.getParcelable(EXPENSE_KEY);
+            mTotalRevenues = savedInstanceState.getParcelable(REVENUE_KEY);
         }
-
         //Initialize view
         setContentView(R.layout.activity_app_base);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
         mDrawerLayout = findViewById(R.id.drawer_layout);
         mDrawerToggle = new ActionBarDrawerToggle(
                 this, mDrawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -102,11 +120,16 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
         //Initialize Firebase db
         if (mDatabase == null) {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             if (savedInstanceState == null) {
-                database.setPersistenceEnabled(true); //To work with offline data too
+                try {
+                    database.setPersistenceEnabled(true); //To work with offline data too
+                }catch (Exception e){
+                    Log.d(getLocalClassName(),"App tried to initialize persistence when already initialized");
+                }
             }
             mDatabase = database.getReference();
             DatabaseManager.setDatabase(mDatabase);
@@ -142,18 +165,23 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
         //Show default main screen at launch
         if (savedInstanceState == null) {
             //Attach the transaction list fragment
-            TransactionsListFragment mainFragment = new TransactionsListFragment();
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager.beginTransaction()
-                    .add(R.id.fm_fragments_container, mainFragment)
-                    .commit();
-
-
-            mRevenuesGroups = new TreeMap<>();
-            mDepositsGroups = new TreeMap<>();
-            mExpensesGroups = new TreeMap<>();
-            mTransactions = new TreeMap<>();
+            firstLogin();
         }
+    }
+
+    private void firstLogin() {
+        TransactionsListFragment mainFragment = new TransactionsListFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .add(R.id.fm_fragments_container, mainFragment)
+                .commit();
+
+        mRevenuesGroups = new TreeMap<>();
+        mDepositsGroups = new TreeMap<>();
+        mExpensesGroups = new TreeMap<>();
+        mTransactions = new TreeMap<>();
+        mTotalExpenses = 0;
+        mTotalRevenues = 0;
     }
 
     @Override
@@ -164,6 +192,23 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
         Utilities.writeMapTGAsBundle(outState,mExpensesGroups);
         Utilities.writeMapTAsBundle(outState,mTransactions);
         outState.putString(CURRENT_FRAGMENT_KEY,currentFragment);
+        outState.putFloat(EXPENSE_KEY,mTotalExpenses);
+        outState.putFloat(REVENUE_KEY,mTotalRevenues);
+
+        SharedPreferences sharedPref = this.getSharedPreferences(Constants.APP_SHARED_PREFS,Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putFloat(Constants.EXPENSES_SHARED_PREF_KEY, mTotalExpenses);
+        editor.putFloat(Constants.REVENUE_SHARED_PREF_KEY, mTotalRevenues);
+        Log.d("AAA",String.valueOf(mTotalExpenses));
+        Log.d("AAA",String.valueOf(mTotalRevenues));
+        editor.commit();
+        Intent intent = new Intent(this, StatusWidgetProvider.class);
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        int[] ids = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName(getApplication(), StatusWidgetProvider.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        sendBroadcast(intent);
+
+
     }
 
     @Override
@@ -209,12 +254,25 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
 
     private void onSignedInitialize(FirebaseUser user) {
         mUsername = user.getDisplayName();
+        mUserMail = user.getEmail();
         mUserId = user.getUid();
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        View headerView = navigationView.getHeaderView(0);
+
+        TextView userName = headerView.findViewById(R.id.tv_username);
+        TextView mail = headerView.findViewById(R.id.tv_mail);
+        userName.setText(mUsername);
+        mail.setText(mUserMail);
+
         // Add a reference to transaction groups and transactions
         DatabaseReference[] references = DatabaseManager.addUser(mUserId);
         mDataBaseTransactionGroups = references[0];
         mDataBaseTransactions = references[1];
         attachDatabaseReadListener();
+        ReminderUtilities.scheduleChargingReminder(this);
 
     }
 
@@ -242,7 +300,7 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
@@ -259,13 +317,14 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
 
         } else if (id == R.id.menu_item_history) {
 
-            HashMap<String,TransactionGroup> mergedMap = Utilities.mergeMaps(mRevenuesGroups,mDepositsGroups,mExpensesGroups);
-            Fragment newFragment = new TransactionsHistoryFragment().newInstance(new ArrayList<Transaction>(mTransactions.values()),mergedMap);
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            if (!currentFragment.equals(TransactionsHistoryFragment.class.getSimpleName())) {
+                HashMap<String, TransactionGroup> mergedMap = Utilities.mergeMaps(mRevenuesGroups, mDepositsGroups, mExpensesGroups);
+                Fragment newFragment = new TransactionsHistoryFragment().newInstance(new ArrayList<Transaction>(mTransactions.values()), mergedMap);
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
-            transaction.replace(R.id.fm_fragments_container, newFragment);
-            transaction.commit();
-
+                transaction.replace(R.id.fm_fragments_container, newFragment);
+                transaction.commit();
+            }
             currentFragment = TransactionsHistoryFragment.class.getSimpleName();
 
         } else if (id == R.id.menu_item_statistics) {
@@ -279,6 +338,10 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
 
                 currentFragment = StatisticsFragment.class.getSimpleName();
             }
+        } else if (id == R.id.signout){
+            AuthUI.getInstance().signOut(this);
+            firstLogin();
+            //TODO: Clean the data
         }
 
         mDrawerLayout.closeDrawer(GravityCompat.START);
@@ -331,6 +394,8 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
                             for (DataSnapshot flow : flowChildren) {
                                 TransactionValue tv = flow.getValue(TransactionValue.class);
                                 tv.setTransactionValueFirebaseId(flow.getKey());
+                                Log.d("AAA","added tv");
+                                Log.d("AAA", String.valueOf(tv.getTransactionId()==null));
                                 transactionGroup.addTransactionValue(tv);
 
                             }
@@ -345,21 +410,32 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
                     addValuesToGroup(dataSnapshot, transactionGroup);
 
                     if (transactionGroup.getType() != null) {
-                        TransactionsListFragment transactionsListFragment = (TransactionsListFragment) getSupportFragmentManager().findFragmentById(R.id.fm_fragments_container);
+                        TransactionsListFragment transactionsListFragment =null;
+                        if (currentFragment.equals(TransactionsListFragment.class.getSimpleName())) {
+                            transactionsListFragment = (TransactionsListFragment) getSupportFragmentManager().findFragmentById(R.id.fm_fragments_container);
+                        }
                         switch (transactionGroup.getType()) {
                             case REVENUE:
                                 Log.d("AAA","revenue changed");
                                 mRevenuesGroups.put(dataSnapshot.getKey(), transactionGroup);
-                                transactionsListFragment.getRevenueAdapter().updateGroup(transactionGroup);
+
+                                if (transactionsListFragment!=null) {
+                                    transactionsListFragment.getRevenueAdapter().updateGroup(transactionGroup);
+                                }
                                 break;
                             case DEPOSIT:
                                 mDepositsGroups.put(dataSnapshot.getKey(), transactionGroup);
-                                transactionsListFragment.getDepositAdapter().updateGroup(transactionGroup);
+                                if (transactionsListFragment!=null) {
+                                    transactionsListFragment.getDepositAdapter().updateGroup(transactionGroup);
+                                }
+                                mTotalRevenues+=transactionGroup.getInitialValue();
                                 Log.d("AAA","deposit changed");
                                 break;
                             case EXPENSE:
                                 mExpensesGroups.put(dataSnapshot.getKey(), transactionGroup);
-                                transactionsListFragment.getExpenseAdapter().updateGroup(transactionGroup);
+                                if (transactionsListFragment!=null) {
+                                    transactionsListFragment.getExpenseAdapter().updateGroup(transactionGroup);
+                                }
                                 Log.d("AAA","expense changed");
                                 break;
                             default:
@@ -406,6 +482,13 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
                     transaction.setFirebaseId(dataSnapshot.getKey());
                     mTransactions.put(dataSnapshot.getKey(), transaction);
                     Log.d("AAA", "added transaction");
+                    if (transaction.isExpense()){
+                        mTotalExpenses+=transaction.getValue();
+
+                    }
+                    else{
+                        mTotalRevenues+=transaction.getValue();
+                    }
                 }
 
                 @Override
@@ -450,5 +533,52 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
     }
 
 
+    @Override
+    public void onTransactionDeleted(Transaction transaction) {
+        mTransactions.remove(transaction.getFirebaseId());
+        DatabaseManager.deleteTransaction(transaction.getFirebaseId());
+        int transactionValuePosition;
+        List<TransactionValue> transactionValues;
+
+        String fromGroupId = transaction.getFromGroup();
+        transactionValues = getTransactionValues(fromGroupId);
+        if (transactionValues!=null){
+            transactionValuePosition = getTransactionValuePosition(transactionValues,transaction.getFirebaseId());
+            if (transactionValuePosition>=0){
+                DatabaseManager.deleteTransactionValue(fromGroupId,transactionValues.get(transactionValuePosition).getTransactionValueFirebaseId());
+
+            }
+        }
+
+
+        String toGroupId = transaction.getToGroup();
+        transactionValues = getTransactionValues(toGroupId);
+        if (transactionValues!=null){
+            transactionValuePosition = getTransactionValuePosition(transactionValues,transaction.getFirebaseId());
+            if (transactionValuePosition>=0){
+                DatabaseManager.deleteTransactionValue(toGroupId,transactionValues.get(transactionValuePosition).getTransactionValueFirebaseId());
+            }
+        }
+    }
+
+    private List<TransactionValue> getTransactionValues(String transactionId){
+        if (mExpensesGroups.containsKey(transactionId)){
+            return mExpensesGroups.get(transactionId).getTransactionsValue();
+        } else if (mRevenuesGroups.containsKey(transactionId)){
+            return mRevenuesGroups.get(transactionId).getTransactionsValue();
+        }else if (mDepositsGroups.containsKey(transactionId)){
+            return mDepositsGroups.get(transactionId).getTransactionsValue();
+        }
+        else return null;
+    }
+
+    private int getTransactionValuePosition(List<TransactionValue> transactionValues, String transactionId){
+        for (int i=0; i<transactionValues.size();i++) {
+            if (transactionValues.get(i).getTransactionId().equals(transactionId)){
+                return i;
+            }
+        }
+        return -1;
+    }
 
 }

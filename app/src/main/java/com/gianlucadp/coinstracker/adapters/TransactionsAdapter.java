@@ -1,7 +1,9 @@
 package com.gianlucadp.coinstracker.adapters;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.gianlucadp.coinstracker.AppBaseActivity;
 import com.gianlucadp.coinstracker.R;
 import com.gianlucadp.coinstracker.model.Transaction;
 import com.gianlucadp.coinstracker.model.TransactionGroup;
@@ -28,12 +29,22 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
     private List<Transaction> transactions;
     private Map<String,TransactionGroup> mGroups;
 
+    private AdapterListener listener;
 
     public TransactionsAdapter(Context context, List<Transaction> transactions, Map<String,TransactionGroup> groupMap) {
         this.mContext = context;
         this.transactions = transactions;
         this.mGroups = groupMap;
 
+    }
+
+    // define the listener
+    public interface AdapterListener {
+        void onTransactionRemoved(Transaction transaction);
+    }
+
+    public void setListener(AdapterListener listener) {
+        this.listener = listener;
     }
 
     public void setTransactions(List<Transaction> transactions) {
@@ -68,6 +79,7 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
         int layoutIdForListItem = R.layout.item_recyclerview_transaction;
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(layoutIdForListItem, viewGroup, false);
+
         return new TransactionViewHolder(view);
     }
 
@@ -85,6 +97,37 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
         private TextView mTextViewTo;
         private TextView mTextViewValue;
         private TextView mTextViewDate;
+        private TextView mTextViewNotes;
+        private Transaction mCurrentTransaction;
+
+
+        private final View.OnLongClickListener mOnLongClickListener = new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+
+                AlertDialog.Builder alert = new AlertDialog.Builder(mContext);
+                alert.setTitle("Delete entry");
+                alert.setMessage("Are you sure you want to delete?");
+                alert.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        transactions.remove(getAdapterPosition());
+                        notifyDataSetChanged();
+                        if(listener != null) {
+                            listener.onTransactionRemoved(mCurrentTransaction);
+                        }
+                    }
+                });
+                alert.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // close dialog
+                        dialog.cancel();
+                    }
+                });
+                alert.show();
+
+                return true;
+            }
+        };
 
 
         public TransactionViewHolder(View view) {
@@ -96,15 +139,18 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
             mTextViewTo = view.findViewById(R.id.tv_to_group);
             mTextViewValue = view.findViewById(R.id.tv_date);
             mTextViewDate = view.findViewById(R.id.tv_value);
+            mTextViewNotes = view.findViewById(R.id.tv_notes);
+
+            view.setOnLongClickListener(mOnLongClickListener);
         }
 
 
         public void loadTransactionGroup(int position) {
             if (transactions != null) {
-                Transaction currentTransaction = transactions.get(position);
+                mCurrentTransaction = transactions.get(position);
 
-                String fromGroupId = currentTransaction.getFromGroup();
-                String toGroupId = currentTransaction.getToGroup();
+                String fromGroupId = mCurrentTransaction.getFromGroup();
+                String toGroupId = mCurrentTransaction.getToGroup();
 
                 TransactionGroup fromGroup = mGroups.get(fromGroupId);
                 TransactionGroup toGroup =   mGroups.get(toGroupId);
@@ -121,12 +167,12 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
                 mImageViewIconTo.setImageDrawable(toIcon);
                 mTextViewTo.setText(toGroup.getName());
 
-                mTextViewValue.setText(String.valueOf(currentTransaction.getValue()));
+                mTextViewValue.setText(String.valueOf(mCurrentTransaction.getValue()));
 
-                long dateValue = currentTransaction.getTimestamp();
+                long dateValue = mCurrentTransaction.getTimestamp();
                 SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
                 mTextViewDate.setText(sdf.format(new Date(dateValue)));
-
+                mTextViewNotes.setText(mCurrentTransaction.getNotes());
 
             }
 

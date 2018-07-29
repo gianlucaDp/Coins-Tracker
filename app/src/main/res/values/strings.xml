@@ -3,6 +3,7 @@
     <string name="main_page_name">Main</string>
     <string name="transaction_history">Transaction History</string>
     <string name="statistics">Statistics</string>
+    <string name="signout">Log off</string>
     <string name="title_activity_navigation_drawer">NavigationDrawer</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -13,9 +14,13 @@
     <string name="select_an_icon">Select an Icon</string>
     <string name="insert_name_group">Insert Name Here</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_new_transaction">New Transaction</string>
     <string name="add_new">Add new</string>
     <string name="initial_value">Initial Value</string>
+
+    <string name="charging_reminder_notification_title">Have you inserted your expenses today?</string>
+    <string name="charging_reminder_notification_body">Keep your expenses under control! Click here to open the app!</string>
+    <string name="main_notification_channel_name">Primary</string>
+
 </resources>

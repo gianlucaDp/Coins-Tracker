@@ -1,16 +1,15 @@
 package com.gianlucadp.coinstracker;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.gianlucadp.coinstracker.adapters.TransactionGroupAdapter;
 import com.gianlucadp.coinstracker.adapters.TransactionsAdapter;
 import com.gianlucadp.coinstracker.model.Transaction;
 import com.gianlucadp.coinstracker.model.TransactionGroup;
@@ -20,8 +19,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-
 
 
 public class TransactionsHistoryFragment extends Fragment {
@@ -35,8 +32,7 @@ public class TransactionsHistoryFragment extends Fragment {
     private Map<String,TransactionGroup> mGroups = new HashMap<>();
     RecyclerView mTransactionsRecyclerView;
     TransactionsAdapter mTransactionsAdapter;
-
-    //private OnFragmentInteractionListener mListener;
+    private OnTransactionInteractionListener mListener;
 
     public TransactionsHistoryFragment() {
         // Required empty public constructor
@@ -69,30 +65,30 @@ public class TransactionsHistoryFragment extends Fragment {
     mTransactionsRecyclerView = rootView.findViewById(R.id.rv_history);
 
         mTransactionsAdapter = new TransactionsAdapter(getContext(),mTransactions,mGroups);
-
+        mTransactionsAdapter.setListener(new TransactionsAdapter.AdapterListener() {
+            @Override
+            public void onTransactionRemoved(Transaction transaction) {
+                mListener.onTransactionDeleted(transaction);
+            }
+        });
         LinearLayoutManager manager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false);
         mTransactionsRecyclerView.setLayoutManager(manager);
         mTransactionsRecyclerView.setHasFixedSize(true);
         // Set Adapter
         mTransactionsRecyclerView.setAdapter(mTransactionsAdapter);
+        mTransactionsRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
     return  rootView;
     }
-/**
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
+
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof OnTransactionInteractionListener) {
+            mListener = (OnTransactionInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnTransactionInteractionListener");
         }
     }
 
@@ -102,9 +98,8 @@ public class TransactionsHistoryFragment extends Fragment {
         mListener = null;
     }
 
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+    public interface OnTransactionInteractionListener {
+        void onTransactionDeleted(Transaction transaction);
     }
-    */
+
 }

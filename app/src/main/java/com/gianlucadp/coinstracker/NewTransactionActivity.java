@@ -20,6 +20,7 @@ import com.gianlucadp.coinstracker.supportClasses.DatabaseManager;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class NewTransactionActivity extends AppCompatActivity implements DatePickerFragment.OnDateSelectedListener {
 private TransactionGroup mSourceTG;
@@ -63,7 +64,9 @@ private EditText mEtTransactionNotes;
                 String notes = mEtTransactionNotes.getText().toString();
                 Log.d("AAA", "sono uguali?: " + String.valueOf( mTargetTG.getType().equals(mSourceTG.getType())));
                 boolean isExpense = mTargetTG.getType().equals(TransactionGroup.GroupType.EXPENSE) ||  mTargetTG.getType().equals(mSourceTG.getType());
-                Transaction transaction = new Transaction(mSourceTG.getFirebaseId(), mTargetTG.getFirebaseId(), value,mCurrentDate.getTime(),notes,isExpense);
+                long time = mCurrentDate.getTime();
+                time -= (time%(TimeUnit.DAYS.toSeconds(1)));
+                Transaction transaction = new Transaction(mSourceTG.getFirebaseId(), mTargetTG.getFirebaseId(), value,time,notes,isExpense);
                 DatabaseManager.addTransaction(transaction);
                 finish();
             }

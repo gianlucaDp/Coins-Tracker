@@ -36,54 +36,26 @@ public class DatabaseManager {
     }
 
     public static void addTransaction(Transaction transaction){
-        mDatabase.child("users").child(mUserId).child("transaction").push().setValue(transaction);
+        String firebaseId = mDatabase.push().getKey();
+        transaction.setFirebaseId(firebaseId);
+        mDatabase.child("users").child(mUserId).child("transaction").child(firebaseId).setValue(transaction);
         addTransactionDetailsInGroup(transaction);
+    }
+
+    public static void deleteTransaction(String transactionId){
+        mDatabase.child("users").child(mUserId).child("transaction").child(transactionId).removeValue();
+    }
+
+    public static void deleteTransactionValue(String transactionGroupId,String transactionValueId){
+        mDatabase.child("users").child(mUserId).child("transaction_groups").child(transactionGroupId).child("flows").child(transactionValueId).removeValue();
     }
 
     public static void addTransactionDetailsInGroup(Transaction transaction){
         TransactionValue transactionValueIN = new TransactionValue(transaction.getFirebaseId(),transaction.getValue(),false);
         TransactionValue transactionValueOUT = new TransactionValue(transaction.getFirebaseId(),transaction.getValue(),transaction.isExpense());
-
+        Log.d("AAA",String.valueOf(transaction.getFirebaseId()==null));
         mDatabase.child("users").child(mUserId).child("transaction_groups").child(transaction.getFromGroup()).child("flows").push().setValue(transactionValueOUT);
         mDatabase.child("users").child(mUserId).child("transaction_groups").child(transaction.getToGroup()).child("flows").push().setValue(transactionValueIN);
     }
-
-
-    public static void getTransactions(){
-        final float netValue;
-        DatabaseReference transactions = mDatabase.child("users").child(mUserId).child("transaction");
-        ChildEventListener mTransactionGroupsEventListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                Transaction transaction = dataSnapshot.getValue(Transaction.class);
-                transaction.setFirebaseId(dataSnapshot.getKey());
-                Log.d("AAA", String.valueOf(transaction.getValue()));
-
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        };
-        transactions.addChildEventListener(mTransactionGroupsEventListener);
-    }
-
 
 }

@@ -15,9 +15,13 @@
             android:icon="@drawable/content_paste"/>
 
         <item
-            android:id="@+id/menu_item_statistics"
-            android:title="@string/statistics"
-            android:icon="@drawable/chart_line"/>
+        android:id="@+id/menu_item_statistics"
+        android:title="@string/statistics"
+        android:icon="@drawable/chart_line"/>
+        <item
+            android:id="@+id/signout"
+            android:title="@string/signout"
+            android:icon="@drawable/ic_menu_share"/>
     </group>
 
 
