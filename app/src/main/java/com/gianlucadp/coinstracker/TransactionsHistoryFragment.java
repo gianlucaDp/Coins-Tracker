@@ -22,7 +22,6 @@ import java.util.Map;
 
 
 public class TransactionsHistoryFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "transactions";
 
@@ -65,7 +64,7 @@ public class TransactionsHistoryFragment extends Fragment {
     mTransactionsRecyclerView = rootView.findViewById(R.id.rv_history);
 
         mTransactionsAdapter = new TransactionsAdapter(getContext(),mTransactions,mGroups);
-        mTransactionsAdapter.setListener(new TransactionsAdapter.AdapterListener() {
+        mTransactionsAdapter.setListener(new TransactionsAdapter.TransactionsAdapterListener() {
             @Override
             public void onTransactionRemoved(Transaction transaction) {
                 mListener.onTransactionDeleted(transaction);

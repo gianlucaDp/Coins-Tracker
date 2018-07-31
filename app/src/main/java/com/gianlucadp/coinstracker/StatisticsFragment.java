@@ -191,10 +191,13 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
 
                 if (mRevenuesByDay.containsKey(date)) {
                     float inValue = mRevenuesByDay.get(date);
+                    float cumulativeInValue;
                     if (i>0){
-                        inValue += inValues[i-1].getY();
+                        cumulativeInValue = inValue + (float) inValues[i-1].getY();
+                    }else{
+                        cumulativeInValue = inValue;
                     }
-                    inValues[i] = new DataPoint(new Date(date), inValue);
+                    inValues[i] = new DataPoint(new Date(date), cumulativeInValue);
                     i++;
 
                     if (inValue<mMinIn){
@@ -219,11 +222,14 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
 
                 if (mExpensesByDay.containsKey(date)) {
                     float outValue = mExpensesByDay.get(date);
+                    float cumulativeOutValue;
                     if (j>0){
-                        outValue += outValues[j-1].getY();
+                        cumulativeOutValue = outValue + (float) outValues[j-1].getY();
+                    }else{
+                        cumulativeOutValue = outValue;
                     }
 
-                    outValues[j] = new DataPoint(new Date(date), outValue);
+                    outValues[j] = new DataPoint(new Date(date), cumulativeOutValue);
                     j++;
 
                     if (outValue<mMinOut){
@@ -246,10 +252,13 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
 
 
                 float netValue = mNetByDay.get(date);
+                float cumulativeNetValue;
                 if (k>0){
-                    netValue += netValues[k-1].getY();
+                    cumulativeNetValue = netValue + (float) netValues[k-1].getY();
+                }else{
+                    cumulativeNetValue = netValue;
                 }
-                netValues[k] = new DataPoint(new Date(date),netValue);
+                netValues[k] = new DataPoint(new Date(date),cumulativeNetValue);
 
                 if (netValue<mMinNet){
                     mMinNet = netValue;

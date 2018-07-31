@@ -6,6 +6,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -19,6 +20,7 @@ import com.gianlucadp.coinstracker.supportClasses.DatabaseManager;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -64,7 +66,7 @@ private EditText mEtTransactionNotes;
                 String notes = mEtTransactionNotes.getText().toString();
                 Log.d("AAA", "sono uguali?: " + String.valueOf( mTargetTG.getType().equals(mSourceTG.getType())));
                 boolean isExpense = mTargetTG.getType().equals(TransactionGroup.GroupType.EXPENSE) ||  mTargetTG.getType().equals(mSourceTG.getType());
-                long time = mCurrentDate.getTime();
+                long time = getDateInMillis(mCurrentDate);
                 time -= (time%(TimeUnit.DAYS.toSeconds(1)));
                 Transaction transaction = new Transaction(mSourceTG.getFirebaseId(), mTargetTG.getFirebaseId(), value,time,notes,isExpense);
                 DatabaseManager.addTransaction(transaction);
@@ -97,5 +99,15 @@ private EditText mEtTransactionNotes;
     public void applyDate(Date date) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-YYYY");
         mTvCurrentDate.setText(simpleDateFormat.format(date));
+    }
+
+    public static long getDateInMillis(Date d) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        return c.getTimeInMillis();
     }
 }

@@ -1,17 +1,11 @@
 package com.gianlucadp.coinstracker;
 
-import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.widget.DatePicker;
-
-import com.gianlucadp.coinstracker.model.Transaction;
-import com.gianlucadp.coinstracker.model.TransactionGroup;
 
 import java.util.Calendar;
 import java.util.Date;

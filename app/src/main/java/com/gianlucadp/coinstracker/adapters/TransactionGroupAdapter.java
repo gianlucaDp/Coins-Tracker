@@ -2,11 +2,15 @@ package com.gianlucadp.coinstracker.adapters;
 
 import android.content.ClipData;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -18,6 +22,7 @@ import com.gianlucadp.coinstracker.R;
 import com.gianlucadp.coinstracker.model.TransactionGroup;
 import com.gianlucadp.coinstracker.model.TransactionValue;
 import com.gianlucadp.coinstracker.supportClasses.DragListener;
+import com.gianlucadp.coinstracker.supportClasses.GestureListener;
 import com.gianlucadp.coinstracker.supportClasses.IconsManager;
 import com.mikepenz.community_material_typeface_library.CommunityMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
@@ -30,8 +35,15 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
     private Context mContext;
     private  TransactionGroup.GroupType elementsType;
     private List<TransactionGroup> transactionGroups;
+    private TransactionsGroupAdapterListener listener;
 
+    public interface  TransactionsGroupAdapterListener{
+        void onTransactionGroupRemoved(TransactionGroup group);
+    }
 
+    public void setListener(TransactionsGroupAdapterListener listener) {
+        this.listener = listener;
+    }
 
     public TransactionGroupAdapter(Context context, TransactionGroup.GroupType elementsType, List<TransactionGroup> transactionGroups) {
         this.mContext = context;
@@ -94,6 +106,7 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
         else{
             holder.loadTransactionGroup(position);
             holder.initializeDragAndDrop(position);
+            holder.initializeDelete();
 
         }
     }
@@ -103,7 +116,8 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
         private ImageView mImageViewIcon;
         private TextView mTextViewName;
         private TextView mTextViewValue;
-
+        private TransactionGroup mCurrentTransactionGroup;
+        private GestureDetector mDetector;
 
 
 
@@ -123,31 +137,16 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
 
         public void loadTransactionGroup(int position) {
             if (transactionGroups != null) {
-                TransactionGroup currentTransaction = transactionGroups.get(position);
-                int color = IconsManager.setColorBasedOnType(mContext,currentTransaction.getType());
+                mCurrentTransactionGroup = transactionGroups.get(position);
+                int color = IconsManager.setColorBasedOnType(mContext,mCurrentTransactionGroup.getType());
                 Drawable addNewIcon = new IconicsDrawable(mContext)
-                        .icon(currentTransaction.getImageId()).color(color).sizeDp(48);
+                        .icon(mCurrentTransactionGroup.getImageId()).color(color).sizeDp(48);
                 mImageViewIcon.setImageDrawable(addNewIcon);
                 mImageViewIcon.setOnLongClickListener(mOnClickListener);
                 mImageViewIcon.setOnClickListener(null);
-                mTextViewName.setText(currentTransaction.getName());
+                mTextViewName.setText(mCurrentTransactionGroup.getName());
+                mTextViewValue.setText(String.valueOf(mCurrentTransactionGroup.getValue()));
 
-                float value = 0;
-
-                if (currentTransaction.getType()== TransactionGroup.GroupType.DEPOSIT) {
-                    value+=  currentTransaction.getInitialValue();
-
-                }
-
-                if (currentTransaction.getTransactionsValue()!=null && currentTransaction.getTransactionsValue().size()>0){
-
-                    for (TransactionValue transaction:currentTransaction.getTransactionsValue()) {
-                        value+=transaction.getRealValue();
-                    }
-                    mTextViewValue.setText(String.valueOf(value));
-                }else{
-                    mTextViewValue.setText(String.valueOf(value));
-                }
 
             }
 
@@ -182,6 +181,47 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
             }
         };
 
+
+
+        private void initializeDelete() {
+
+
+            GestureListener gestureListener = new GestureListener() {
+                @Override
+                public boolean onDoubleTap(MotionEvent e) {
+
+                    AlertDialog.Builder alert = new AlertDialog.Builder(mContext);
+                    alert.setTitle("Delete Group");
+                    alert.setMessage("Are you sure you want to delete this group?");
+                    alert.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            transactionGroups.remove(getAdapterPosition());
+                            notifyDataSetChanged();
+                            if(listener != null) {
+                                listener.onTransactionGroupRemoved(mCurrentTransactionGroup);
+                            }
+                        }
+                    });
+                    alert.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // close dialog
+                            dialog.cancel();
+                        }
+                    });
+                    alert.show();
+                    return false;
+                }
+            };
+
+            mDetector = new GestureDetector(mContext, gestureListener);
+
+            mImageViewIcon.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    return mDetector.onTouchEvent(motionEvent);
+                }
+            });
+        }
     }
 
 

@@ -51,7 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class AppBaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, AddNewGroupFragment.OnGroupCreatedListener, TransactionsHistoryFragment.OnTransactionInteractionListener {
+public class AppBaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, AddNewGroupFragment.OnGroupCreatedListener, TransactionsHistoryFragment.OnTransactionInteractionListener, TransactionsListFragment.OnTransactionGroupInteractionListener {
     public static final int RC_SIGN_IN = 1;
     private static final String CURRENT_FRAGMENT_KEY = "CF_KEY";
     private static final String EXPENSE_KEY = "EXPENSE_KEY";
@@ -194,14 +194,7 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
         outState.putString(CURRENT_FRAGMENT_KEY,currentFragment);
         outState.putFloat(EXPENSE_KEY,mTotalExpenses);
         outState.putFloat(REVENUE_KEY,mTotalRevenues);
-
-        SharedPreferences sharedPref = this.getSharedPreferences(Constants.APP_SHARED_PREFS,Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putFloat(Constants.EXPENSES_SHARED_PREF_KEY, mTotalExpenses);
-        editor.putFloat(Constants.REVENUE_SHARED_PREF_KEY, mTotalRevenues);
-        Log.d("AAA",String.valueOf(mTotalExpenses));
-        Log.d("AAA",String.valueOf(mTotalRevenues));
-        editor.commit();
+        writeTotalValues();
         Intent intent = new Intent(this, StatusWidgetProvider.class);
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
         int[] ids = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName(getApplication(), StatusWidgetProvider.class));
@@ -209,6 +202,14 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
         sendBroadcast(intent);
 
 
+    }
+
+    private void writeTotalValues() {
+        SharedPreferences sharedPref = this.getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putFloat(Constants.EXPENSES_SHARED_PREF_KEY, mTotalExpenses);
+        editor.putFloat(Constants.REVENUE_SHARED_PREF_KEY, mTotalRevenues);
+        editor.commit();
     }
 
     @Override
@@ -341,7 +342,6 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
         } else if (id == R.id.signout){
             AuthUI.getInstance().signOut(this);
             firstLogin();
-            //TODO: Clean the data
         }
 
         mDrawerLayout.closeDrawer(GravityCompat.START);
@@ -484,10 +484,11 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
                     Log.d("AAA", "added transaction");
                     if (transaction.isExpense()){
                         mTotalExpenses+=transaction.getValue();
-
+                        writeTotalValues();
                     }
                     else{
                         mTotalRevenues+=transaction.getValue();
+                        writeTotalValues();
                     }
                 }
 
@@ -546,7 +547,6 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
             transactionValuePosition = getTransactionValuePosition(transactionValues,transaction.getFirebaseId());
             if (transactionValuePosition>=0){
                 DatabaseManager.deleteTransactionValue(fromGroupId,transactionValues.get(transactionValuePosition).getTransactionValueFirebaseId());
-
             }
         }
 
@@ -559,6 +559,18 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
                 DatabaseManager.deleteTransactionValue(toGroupId,transactionValues.get(transactionValuePosition).getTransactionValueFirebaseId());
             }
         }
+
+        updateTotalValuesAfterDeleteTransaction(transaction);
+    }
+
+
+    private void updateTotalValuesAfterDeleteTransaction(Transaction transaction){
+        if (transaction.isExpense()){
+            mTotalExpenses-= transaction.getValue();
+        }else{
+            mTotalRevenues -= transaction.getValue();
+        }
+        writeTotalValues();
     }
 
     private List<TransactionValue> getTransactionValues(String transactionId){
@@ -581,4 +593,30 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
         return -1;
     }
 
+    @Override
+    public void onTransactionGroupDeleted(TransactionGroup transactionGroup) {
+        switch (transactionGroup.getType()) {
+            case REVENUE:
+                mRevenuesGroups.remove(transactionGroup.getFirebaseId());
+
+
+                break;
+            case DEPOSIT:
+                mDepositsGroups.remove(transactionGroup.getFirebaseId());
+                break;
+            case EXPENSE:
+                mExpensesGroups.remove(transactionGroup.getFirebaseId());
+                break;
+            default:
+                break;
+        }
+        DatabaseManager.deleteTransactionGroup(transactionGroup.getFirebaseId());
+        for (TransactionValue transactionValue : transactionGroup.getTransactionsValue()) {
+            onTransactionDeleted(mTransactions.get(transactionValue.getTransactionId()));
+        }
+
+        writeTotalValues();
+        TransactionsListFragment transactionsListFragment = (TransactionsListFragment) getSupportFragmentManager().findFragmentById(R.id.fm_fragments_container);
+        transactionsListFragment.updateTotalsTable();
+    }
 }

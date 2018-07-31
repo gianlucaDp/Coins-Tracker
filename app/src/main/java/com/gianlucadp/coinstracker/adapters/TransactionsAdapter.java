@@ -29,7 +29,7 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
     private List<Transaction> transactions;
     private Map<String,TransactionGroup> mGroups;
 
-    private AdapterListener listener;
+    private TransactionsAdapterListener listener;
 
     public TransactionsAdapter(Context context, List<Transaction> transactions, Map<String,TransactionGroup> groupMap) {
         this.mContext = context;
@@ -39,11 +39,11 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
     }
 
     // define the listener
-    public interface AdapterListener {
+    public interface TransactionsAdapterListener {
         void onTransactionRemoved(Transaction transaction);
     }
 
-    public void setListener(AdapterListener listener) {
+    public void setListener(TransactionsAdapterListener listener) {
         this.listener = listener;
     }
 
@@ -101,13 +101,14 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
         private Transaction mCurrentTransaction;
 
 
+
         private final View.OnLongClickListener mOnLongClickListener = new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
 
                 AlertDialog.Builder alert = new AlertDialog.Builder(mContext);
-                alert.setTitle("Delete entry");
-                alert.setMessage("Are you sure you want to delete?");
+                alert.setTitle("Delete Transaction");
+                alert.setMessage("Are you sure you want to delete this transaction?");
                 alert.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         transactions.remove(getAdapterPosition());
@@ -129,6 +130,7 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
             }
         };
 
+        
 
         public TransactionViewHolder(View view) {
             super(view);

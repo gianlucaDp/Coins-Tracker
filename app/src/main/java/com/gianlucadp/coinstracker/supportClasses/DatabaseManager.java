@@ -42,6 +42,10 @@ public class DatabaseManager {
         addTransactionDetailsInGroup(transaction);
     }
 
+    public static void deleteTransactionGroup(String transactionGroupId){
+        mDatabase.child("users").child(mUserId).child("transaction_groups").child(transactionGroupId).removeValue();
+    }
+
     public static void deleteTransaction(String transactionId){
         mDatabase.child("users").child(mUserId).child("transaction").child(transactionId).removeValue();
     }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_main_activity"
     android:layout_width="match_parent"
@@ -18,11 +18,43 @@
         android:id="@+id/rv_deposits"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp" />
+        android:padding="10dp"
+        android:layout_below="@id/rv_revenues"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_expenses"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp" />
-</LinearLayout>
+        android:padding="10dp"
+        android:layout_below="@id/rv_deposits"/>
+    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:stretchColumns="*"
+        android:padding="10dp"
+        android:gravity = "bottom">
+        <TableRow>
+            <TextView
+                android:text="Total Revenue"
+                android:gravity="center"
+                android:padding="3dp" />
+            <TextView
+                android:text="Total Expenses"
+                android:gravity="center"
+                android:padding="3dp" />
+        </TableRow>
+
+        <TableRow>
+            <TextView
+                android:id="@+id/tv_total_revenue"
+                android:text=""
+                android:gravity="center"
+                android:padding="3dip" />
+            <TextView
+                android:id="@+id/tv_total_expenses"
+                android:text=""
+                android:gravity="center"
+                android:padding="3dip" />
+        </TableRow>
+    </TableLayout>
+</RelativeLayout>

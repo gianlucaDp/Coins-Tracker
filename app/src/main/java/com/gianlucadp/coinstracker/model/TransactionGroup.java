@@ -88,6 +88,22 @@ public TransactionGroup(GroupType type,String name, CommunityMaterial.Icon image
         this.transactionsValue.add(transactionValue);
     }
 
+    public float getValue(){
+        float value = 0;
+
+
+        if (type== TransactionGroup.GroupType.DEPOSIT) {
+            value  += initialValue;
+        }
+
+        if (transactionsValue!=null && transactionsValue.size()>0){
+
+            for (TransactionValue transaction: transactionsValue) {
+                value+=transaction.getRealValue();
+            }
+        }
+        return value;
+    }
 
     @Override
     public int describeContents() {
