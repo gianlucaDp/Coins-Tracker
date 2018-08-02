@@ -7,9 +7,11 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.gianlucadp.coinstracker.adapters.TransactionGroupAdapter;
@@ -34,6 +36,8 @@ public class TransactionsListFragment extends Fragment implements SharedPreferen
 
     TextView mTotalRevenuesTextView;
     TextView mTotalExpensesTextView;
+
+    private ProgressBar mProgressBar;
 
     private OnTransactionGroupInteractionListener mListener;
 
@@ -95,6 +99,9 @@ public class TransactionsListFragment extends Fragment implements SharedPreferen
         mExpenseRecyclerView = rootView.findViewById(R.id.rv_expenses);
         mTotalRevenuesTextView = rootView.findViewById(R.id.tv_total_revenue);
         mTotalExpensesTextView = rootView.findViewById(R.id.tv_total_expenses);
+        mProgressBar = rootView.findViewById(R.id.pb_loading);
+
+
 
 
         ArrayList<TransactionGroup> revenues = null;
@@ -110,6 +117,8 @@ public class TransactionsListFragment extends Fragment implements SharedPreferen
             expenses = getArguments().getParcelableArrayList(ARG_PARAM3);
 
 
+        } else{
+            loadStart();
         }
 
         TransactionGroupAdapter.TransactionsGroupAdapterListener listener = new TransactionGroupAdapter.TransactionsGroupAdapterListener() {
@@ -184,7 +193,17 @@ public class TransactionsListFragment extends Fragment implements SharedPreferen
         mListener = null;
     }
 
+    public void loadCompleted() {
+        mProgressBar.setVisibility(View.GONE);
+    }
+
+    public void loadStart() {
+        mProgressBar.setVisibility(View.VISIBLE);
+    }
+
     public interface OnTransactionGroupInteractionListener {
         void onTransactionGroupDeleted(TransactionGroup transactionGroup);
+
+        void onLoadingComplete();
     }
 }

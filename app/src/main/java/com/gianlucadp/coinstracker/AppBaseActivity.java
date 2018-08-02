@@ -175,7 +175,6 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
         fragmentManager.beginTransaction()
                 .add(R.id.fm_fragments_container, mainFragment)
                 .commit();
-
         mRevenuesGroups = new TreeMap<>();
         mDepositsGroups = new TreeMap<>();
         mExpensesGroups = new TreeMap<>();
@@ -307,10 +306,11 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
 
         if (id == R.id.menu_item_main_page) {
             if (!currentFragment.equals(TransactionsListFragment.class.getSimpleName())) {
-                Fragment newFragment = new TransactionsListFragment().newInstance(new ArrayList<TransactionGroup>(mRevenuesGroups.values()),new ArrayList<TransactionGroup>(mDepositsGroups.values()),new ArrayList<TransactionGroup>(mExpensesGroups.values()));
+                Fragment newFragment =  new TransactionsListFragment().newInstance(new ArrayList<TransactionGroup>(mRevenuesGroups.values()),new ArrayList<TransactionGroup>(mDepositsGroups.values()),new ArrayList<TransactionGroup>(mExpensesGroups.values()));
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
                 transaction.replace(R.id.fm_fragments_container, newFragment);
+                transaction.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_FADE );
                 transaction.commit();
 
                 currentFragment = TransactionsListFragment.class.getSimpleName();
@@ -324,6 +324,7 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
                 transaction.replace(R.id.fm_fragments_container, newFragment);
+                transaction.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_FADE );
                 transaction.commit();
             }
             currentFragment = TransactionsHistoryFragment.class.getSimpleName();
@@ -335,6 +336,7 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
                 transaction.replace(R.id.fm_fragments_container, newFragment);
+                transaction.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_FADE );
                 transaction.commit();
 
                 currentFragment = StatisticsFragment.class.getSimpleName();
@@ -461,7 +463,7 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
             mDataBaseTransactionGroups.addListenerForSingleValueEvent(new ValueEventListener() {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     //When all the data is loaded
-
+                    onLoadingComplete();
                 }
 
                 @Override
@@ -619,4 +621,11 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
         TransactionsListFragment transactionsListFragment = (TransactionsListFragment) getSupportFragmentManager().findFragmentById(R.id.fm_fragments_container);
         transactionsListFragment.updateTotalsTable();
     }
+
+    @Override
+    public void onLoadingComplete() {
+        TransactionsListFragment transactionsListFragment = (TransactionsListFragment) getSupportFragmentManager().findFragmentById(R.id.fm_fragments_container);
+        transactionsListFragment.loadCompleted();
+    }
+
 }

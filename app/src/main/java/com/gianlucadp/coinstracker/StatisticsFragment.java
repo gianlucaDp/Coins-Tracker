@@ -1,6 +1,7 @@
 package com.gianlucadp.coinstracker;
 
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,14 +11,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.gianlucadp.coinstracker.model.Transaction;
+import com.gianlucadp.coinstracker.supportClasses.IconsManager;
 import com.google.android.gms.ads.MobileAds;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.mikepenz.community_material_typeface_library.CommunityMaterial;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -26,7 +31,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 
 public class StatisticsFragment extends Fragment {
@@ -41,9 +45,10 @@ public class StatisticsFragment extends Fragment {
     private TextView mMaxExpense;
     private TextView mMeanExpense;
 
-    private TextView mMinNetValue;
-    private TextView mMaxNetValue;
-    private TextView mMeanNetValue;
+    private ProgressBar mProgressBar;
+
+    private ImageView mImageViewNoStatistics;
+    private TextView mTextViewNoStatistics;
 
     private ArrayList<Transaction> mTransactions;
 
@@ -80,9 +85,9 @@ public class StatisticsFragment extends Fragment {
         mMaxExpense = view.findViewById(R.id.tv_max_expense);
         mMeanExpense = view.findViewById(R.id.tv_mean_expense);
 
-        mMinNetValue = view.findViewById(R.id.tv_min_net);
-        mMaxNetValue = view.findViewById(R.id.tv_max_net);
-        mMeanNetValue = view.findViewById(R.id.tv_mean_net);
+        mProgressBar = view.findViewById(R.id.pb_loading);
+        mImageViewNoStatistics = view.findViewById(R.id.im_no_statistic);
+        mTextViewNoStatistics = view.findViewById(R.id.tv_no_statistics);
         new GenerateData().execute();
 
     }
@@ -90,8 +95,9 @@ public class StatisticsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MobileAds.initialize(getContext(), "ca-app-pub-3940256099942544~3347511713");
-
+        if (BuildConfig.BUILD_VARIANT.equals("free")) {
+            MobileAds.initialize(getContext(), "ca-app-pub-3940256099942544~3347511713");
+        }
         if (getArguments() != null) {
             mTransactions = getArguments().getParcelableArrayList(ARG_PARAM1);
 
@@ -124,17 +130,17 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
         private float minValue = 0;
         private float maxValue = 1000;
 
-        private float mMinNet=Float.MAX_VALUE;
         private float mMinIn=Float.MAX_VALUE;
         private float mMinOut=Float.MAX_VALUE;
 
-        private float mMaxNet=0;
         private float mMaxIn=0;
         private float mMaxOut=0;
 
-        private float mMeanNet=0;
         private float mMeanIn=0;
         private float mMeanOut=0;
+
+        private int mNumberOfExpenses = 0;
+        private int mNumberOfRevenues = 0;
 
         @Override
         protected  List<DataPoint[]> doInBackground(Void... params) {
@@ -153,7 +159,7 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
                 float value = transaction.getValue();
 
                 if (transaction.isExpense()) {
-
+                    mNumberOfExpenses+=1;
                     if (!mExpensesByDay.containsKey(dateValue)) {
                         mExpensesByDay.put(dateValue, value);
                     } else {
@@ -162,7 +168,7 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
                     }
                     value *= -1;
                 } else {
-
+                    mNumberOfRevenues+=1;
                     if (!mRevenuesByDay.containsKey(dateValue)) {
                         mRevenuesByDay.put(dateValue, value);
                     } else {
@@ -182,9 +188,9 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
             DataPoint[] outValues = new DataPoint[mNetByDay.size()];
             DataPoint[] netValues = new DataPoint[mNetByDay.size()];
 
-            int i = 0;
-            int j = 0;
-            int k = 0;
+            int inCounter = 0;
+            int outCounter = 0;
+            int meanCounter = 0;
 
 
             for (Long date: asSortedList(mNetByDay.keySet())){
@@ -192,13 +198,13 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
                 if (mRevenuesByDay.containsKey(date)) {
                     float inValue = mRevenuesByDay.get(date);
                     float cumulativeInValue;
-                    if (i>0){
-                        cumulativeInValue = inValue + (float) inValues[i-1].getY();
+                    if (inCounter>0){
+                        cumulativeInValue = inValue + (float) inValues[inCounter-1].getY();
                     }else{
                         cumulativeInValue = inValue;
                     }
-                    inValues[i] = new DataPoint(new Date(date), cumulativeInValue);
-                    i++;
+                    inValues[inCounter] = new DataPoint(new Date(date), cumulativeInValue);
+                    inCounter++;
 
                     if (inValue<mMinIn){
                         mMinIn = inValue;
@@ -211,26 +217,26 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
                     mMeanIn += inValue;
 
 
-                }else if (i>0){
+                }else if (inCounter>0){
 
-                    inValues[i] = new DataPoint(new Date(date), inValues[i-1].getY());
-                    i++;
+                    inValues[inCounter] = new DataPoint(new Date(date), inValues[inCounter-1].getY());
+                    inCounter++;
                 }else{
-                    inValues[i] = new DataPoint(new Date(date), 0);
-                    i++;
+                    inValues[inCounter] = new DataPoint(new Date(date), 0);
+                    inCounter++;
                 }
 
                 if (mExpensesByDay.containsKey(date)) {
                     float outValue = mExpensesByDay.get(date);
                     float cumulativeOutValue;
-                    if (j>0){
-                        cumulativeOutValue = outValue + (float) outValues[j-1].getY();
+                    if (outCounter>0){
+                        cumulativeOutValue = outValue + (float) outValues[outCounter-1].getY();
                     }else{
                         cumulativeOutValue = outValue;
                     }
 
-                    outValues[j] = new DataPoint(new Date(date), cumulativeOutValue);
-                    j++;
+                    outValues[outCounter] = new DataPoint(new Date(date), cumulativeOutValue);
+                    outCounter++;
 
                     if (outValue<mMinOut){
                         mMinOut = outValue;
@@ -242,63 +248,36 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
 
                     mMeanOut += outValue;
 
-                }else if (j>0){
-                    outValues[j] = new DataPoint(new Date(date), outValues[j-1].getY());
-                    j++;
+                }else if (outCounter>0){
+                    outValues[outCounter] = new DataPoint(new Date(date), outValues[outCounter-1].getY());
+                    outCounter++;
             }else{
-                    outValues[j] = new DataPoint(new Date(date), 0);
-                    j++;
+                    outValues[outCounter] = new DataPoint(new Date(date), 0);
+                    outCounter++;
                 }
 
 
                 float netValue = mNetByDay.get(date);
                 float cumulativeNetValue;
-                if (k>0){
-                    cumulativeNetValue = netValue + (float) netValues[k-1].getY();
+                if (meanCounter>0){
+                    cumulativeNetValue = netValue + (float) netValues[meanCounter-1].getY();
                 }else{
                     cumulativeNetValue = netValue;
                 }
-                netValues[k] = new DataPoint(new Date(date),cumulativeNetValue);
-
-                if (netValue<mMinNet){
-                    mMinNet = netValue;
-                }
-
-                if (netValue>mMaxNet){
-                    mMaxNet = netValue;
-                }
-
-                mMeanNet += netValue;
-                k++;
+                netValues[meanCounter] = new DataPoint(new Date(date),cumulativeNetValue);
+                meanCounter++;
             }
 
-            if (i>0){
-                mMeanIn = mMeanIn / i;
+            if (inCounter>0 && mNumberOfRevenues>0){
+                mMeanIn = mMeanIn / mNumberOfRevenues;
             }
-            if (j>0){
-                mMeanOut = mMeanOut / j;
-            }
-            if (k>0){
-                mMeanNet = mMeanNet / k;
+            if (outCounter>0 && mNumberOfExpenses>0){
+                mMeanOut = mMeanOut / mNumberOfExpenses;
             }
 
 
 
             List<DataPoint[]> points = new ArrayList<>();
-            for (DataPoint point: inValues) {
-                Log.d("AAA",point.toString());
-            }
-            Log.d("AAA","----");
-            for (DataPoint point: outValues) {
-                Log.d("AAA",point.toString());
-            }
-            Log.d("AAA","----");
-
-            for (DataPoint point: netValues) {
-                Log.d("AAA",point.toString());
-            }
-            Log.d("AAA","----");
-
             points.add(inValues);
             points.add(outValues);
             points.add(netValues);
@@ -337,21 +316,21 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
                 // as we use dates as labels, the human rounding to nice readable numbers
                 // is not necessary
                 mGraphView.getGridLabelRenderer().setHumanRounding(false);
+                mGraphView.setVisibility(View.VISIBLE);
 
 
 
 
             }else{
-                //Else no points are available, load default value
-                Date date = new Date();
-                mGraphView.getViewport().setMinX(date.getTime());
-                mGraphView.getViewport().setMaxX(date.getTime()+ TimeUnit.DAYS.toSeconds(1));
+                //Else no points are available, load sad face
+                Drawable noDataDrawable = IconsManager.createNewIcon(getContext(), CommunityMaterial.Icon.cmd_emoticon_sad, Color.LTGRAY,160);
+                mImageViewNoStatistics.setImageDrawable(noDataDrawable);
+                mImageViewNoStatistics.setVisibility(View.VISIBLE);
+                mTextViewNoStatistics.setVisibility(View.VISIBLE);
 
             }
+            mProgressBar.setVisibility(View.GONE);
 
-            if(mMinNet==Float.MAX_VALUE){
-                mMinNet = 0;
-            };
             if(mMinOut==Float.MAX_VALUE){
                 mMinOut = 0;
             };
@@ -359,7 +338,6 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
                 mMinIn = 0;
             };
 
-            mGraphView.setVisibility(View.VISIBLE);
 
             mMinIncome.setText(String.valueOf(mMinIn));
             mMaxIncome.setText(String.valueOf(mMaxIn));
@@ -368,10 +346,6 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
             mMinExpense.setText(String.valueOf(mMinOut));
             mMaxExpense.setText(String.valueOf(mMaxOut));
             mMeanExpense.setText(new DecimalFormat("##.##").format(mMeanOut));
-
-            mMinNetValue.setText(String.valueOf(mMinNet));
-            mMaxNetValue.setText(String.valueOf(mMaxNet));
-            mMeanNetValue.setText(new DecimalFormat("##.##").format(mMeanNet));
 
 
         }

@@ -1,6 +1,8 @@
 package com.gianlucadp.coinstracker;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
@@ -9,11 +11,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.gianlucadp.coinstracker.adapters.TransactionsAdapter;
 import com.gianlucadp.coinstracker.model.Transaction;
 import com.gianlucadp.coinstracker.model.TransactionGroup;
+import com.gianlucadp.coinstracker.supportClasses.IconsManager;
 import com.gianlucadp.coinstracker.supportClasses.Utilities;
+import com.mikepenz.community_material_typeface_library.CommunityMaterial;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,6 +37,8 @@ public class TransactionsHistoryFragment extends Fragment {
     private Map<String,TransactionGroup> mGroups = new HashMap<>();
     RecyclerView mTransactionsRecyclerView;
     TransactionsAdapter mTransactionsAdapter;
+    private ImageView mImageViewNoStatistics;
+    private TextView mTextViewNoStatistics;
     private OnTransactionInteractionListener mListener;
 
     public TransactionsHistoryFragment() {
@@ -51,7 +59,7 @@ public class TransactionsHistoryFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-             Utilities.readMapTGFromBundle(getArguments(),mGroups);
+            Utilities.readMapTGFromBundle(getArguments(),mGroups);
             mTransactions = getArguments().getParcelableArrayList(ARG_PARAM1);
         }
     }
@@ -63,6 +71,14 @@ public class TransactionsHistoryFragment extends Fragment {
         final View rootView = inflater.inflate(R.layout.fragment_transactions_history, container, false);
     mTransactionsRecyclerView = rootView.findViewById(R.id.rv_history);
 
+        if (mTransactions == null || mTransactions.isEmpty()){
+            mImageViewNoStatistics = rootView.findViewById(R.id.im_no_statistic);
+            Drawable noDataDrawable = IconsManager.createNewIcon(getContext(), CommunityMaterial.Icon.cmd_emoticon_sad, Color.LTGRAY,160);
+            mImageViewNoStatistics.setImageDrawable(noDataDrawable);
+            mImageViewNoStatistics.setVisibility(View.VISIBLE);
+            mTextViewNoStatistics = rootView.findViewById(R.id.tv_no_statistics);
+            mTextViewNoStatistics.setVisibility(View.VISIBLE);
+        }
         mTransactionsAdapter = new TransactionsAdapter(getContext(),mTransactions,mGroups);
         mTransactionsAdapter.setListener(new TransactionsAdapter.TransactionsAdapterListener() {
             @Override
@@ -76,6 +92,8 @@ public class TransactionsHistoryFragment extends Fragment {
         // Set Adapter
         mTransactionsRecyclerView.setAdapter(mTransactionsAdapter);
         mTransactionsRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+
+
     return  rootView;
     }
 
