@@ -2,12 +2,10 @@ package com.gianlucadp.coinstracker;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.format.DateUtils;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -18,7 +16,6 @@ import com.gianlucadp.coinstracker.model.TransactionGroup;
 import com.gianlucadp.coinstracker.supportClasses.Constants;
 import com.gianlucadp.coinstracker.supportClasses.DatabaseManager;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -38,7 +35,9 @@ private EditText mEtTransactionNotes;
         setContentView(R.layout.activity_new_transaction);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar()!=null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         mTvCurrentDate = findViewById(R.id.tv_date);
         FloatingActionButton fab = findViewById(R.id.fab_create_transaction);
         mEtTransactionValue = findViewById(R.id.et_transaction_value);
@@ -62,15 +61,18 @@ private EditText mEtTransactionNotes;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                float value = Float.valueOf(mEtTransactionValue.getText().toString());
-                String notes = mEtTransactionNotes.getText().toString();
-                Log.d("AAA", "sono uguali?: " + String.valueOf( mTargetTG.getType().equals(mSourceTG.getType())));
-                boolean isExpense = mTargetTG.getType().equals(TransactionGroup.GroupType.EXPENSE) ||  mTargetTG.getType().equals(mSourceTG.getType());
-                long time = getDateInMillis(mCurrentDate);
-                time -= (time%(TimeUnit.DAYS.toSeconds(1)));
-                Transaction transaction = new Transaction(mSourceTG.getFirebaseId(), mTargetTG.getFirebaseId(), value,time,notes,isExpense);
-                DatabaseManager.addTransaction(transaction);
-                finish();
+                if(!TextUtils.isEmpty(mEtTransactionValue.getText())) {
+                    float value = Float.valueOf(mEtTransactionValue.getText().toString());
+                    String notes = mEtTransactionNotes.getText().toString();
+                    boolean isExpense = mTargetTG.getType().equals(TransactionGroup.GroupType.EXPENSE) || mTargetTG.getType().equals(mSourceTG.getType());
+                    long time = getDateInMillis(mCurrentDate);
+                    time -= (time % (TimeUnit.DAYS.toSeconds(1)));
+                    Transaction transaction = new Transaction(mSourceTG.getFirebaseId(), mTargetTG.getFirebaseId(), value, time, notes, isExpense);
+                    DatabaseManager.addTransaction(transaction);
+                    finish();
+                }else{
+                    mEtTransactionValue.setError(getString(R.string.please_insert_value),getDrawable(R.drawable.ic_warning_24dp));
+                }
             }
         });
 

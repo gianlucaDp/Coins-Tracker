@@ -17,12 +17,15 @@
         <EditText
             android:id="@+id/et_transaction_value"
             android:layout_width="200dp"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"/>
 
         <ImageView
+            android:id="@+id/im_warning"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_warning_24dp"/>
+            android:src="@drawable/ic_warning_24dp"
+            android:visibility="invisible"/>
     </LinearLayout>
 
     <LinearLayout
@@ -35,7 +38,7 @@
             android:id="@+id/tv_date"
             android:layout_width="200dp"
             android:layout_height="match_parent"
-            android:text="Today"
+            android:text="@string/today"
             android:gravity="center"/>
 
         <ImageView

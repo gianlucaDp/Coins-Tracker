@@ -1,7 +1,6 @@
 package com.gianlucadp.coinstracker.adapters;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,10 +15,10 @@ import com.mikepenz.community_material_typeface_library.CommunityMaterial;
 
 
 public class IconsArrayAdapter extends BaseAdapter {
-    Context context;
-    CommunityMaterial.Icon[] iconIds;
-    LayoutInflater inflater;
-    TransactionGroup.GroupType groupType;
+    private Context context;
+    private CommunityMaterial.Icon[] iconIds;
+    private LayoutInflater inflater;
+    private TransactionGroup.GroupType groupType;
 
     public IconsArrayAdapter(Context applicationContext, TransactionGroup.GroupType type) {
         this.context = applicationContext;

@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,11 +63,13 @@ public class AddNewGroupFragment extends DialogFragment implements AdapterView.O
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        type = TransactionGroup.GroupType.values()[getArguments().getInt(ARG_TRANSACTION_GROUP)];
+        if (getArguments()!=null) {
+            type = TransactionGroup.GroupType.values()[getArguments().getInt(ARG_TRANSACTION_GROUP)];
+        }
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         if (type == TransactionGroup.GroupType.DEPOSIT){
@@ -96,22 +99,34 @@ public class AddNewGroupFragment extends DialogFragment implements AdapterView.O
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity())
-                .setTitle("Insert New Group")
-                .setPositiveButton("Confirm",
+                .setTitle(R.string.insert_new_group_title)
+                .setPositiveButton(R.string.confirm,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
-                                TransactionGroup transactionGroup;
-                                if (type != TransactionGroup.GroupType.DEPOSIT) {
-                                     transactionGroup = new TransactionGroup(type, mGroupName.getText().toString(), mGroupIcon);
+                                if (!TextUtils.isEmpty(mGroupName.getText())) {
+                                    TransactionGroup transactionGroup;
+                                    if (type != TransactionGroup.GroupType.DEPOSIT) {
+                                        transactionGroup = new TransactionGroup(type, mGroupName.getText().toString(), mGroupIcon);
+                                        mCallback.onGroupCreated(transactionGroup);
 
+                                    } else {
+                                        if (!TextUtils.isEmpty(mInitialValue.getText())) {
+                                            transactionGroup = new TransactionGroup(type, mGroupName.getText().toString(), mGroupIcon, Float.valueOf(mInitialValue.getText().toString()));
+                                            mCallback.onGroupCreated(transactionGroup);
+                                        }else{
+                                            mInitialValue.setError(getString(R.string.please_insert_value),getActivity().getDrawable(R.drawable.ic_warning_24dp));
+                                            //TODO: ADD SNACKBAR
+                                        }
+
+                                    }
                                 }else{
-                                     transactionGroup = new TransactionGroup(type, mGroupName.getText().toString(), mGroupIcon,Float.valueOf(mInitialValue.getText().toString()));
+                                 mGroupName.setError(getString(R.string.please_insert_value),getActivity().getDrawable(R.drawable.ic_warning_24dp));
+                                    //TODO: ADD SNACKBAR
                                 }
-                                mCallback.onGroupCreated(transactionGroup);
 
                             }
                         })
-                .setNegativeButton("Cancel",
+                .setNegativeButton(R.string.cancel,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 dialog.dismiss();

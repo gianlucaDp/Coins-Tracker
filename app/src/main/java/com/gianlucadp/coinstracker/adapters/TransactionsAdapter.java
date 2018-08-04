@@ -107,8 +107,8 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
             public boolean onLongClick(View view) {
 
                 AlertDialog.Builder alert = new AlertDialog.Builder(mContext);
-                alert.setTitle("Delete Transaction");
-                alert.setMessage("Are you sure you want to delete this transaction?");
+                alert.setTitle(R.string.delete_transaction_title);
+                alert.setMessage(R.string.delete_transaction_message);
                 alert.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         transactions.remove(getAdapterPosition());

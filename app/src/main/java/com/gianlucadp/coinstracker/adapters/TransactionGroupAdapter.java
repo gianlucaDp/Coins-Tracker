@@ -1,10 +1,12 @@
 package com.gianlucadp.coinstracker.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -20,7 +22,6 @@ import com.gianlucadp.coinstracker.AddNewGroupFragment;
 import com.gianlucadp.coinstracker.AppBaseActivity;
 import com.gianlucadp.coinstracker.R;
 import com.gianlucadp.coinstracker.model.TransactionGroup;
-import com.gianlucadp.coinstracker.model.TransactionValue;
 import com.gianlucadp.coinstracker.supportClasses.DragListener;
 import com.gianlucadp.coinstracker.supportClasses.GestureListener;
 import com.gianlucadp.coinstracker.supportClasses.IconsManager;
@@ -88,7 +89,7 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
     }
 
     @Override
-    public GroupViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public GroupViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         Context context = viewGroup.getContext();
         int layoutIdForListItem = R.layout.item_recyclerview_transaction_group;
         LayoutInflater inflater = LayoutInflater.from(context);
@@ -98,7 +99,7 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
 
 
     @Override
-    public void onBindViewHolder(GroupViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull GroupViewHolder holder, int position) {
         if (transactionGroups == null || position== transactionGroups.size()){
             holder.loadAddNewButton();
 
@@ -112,7 +113,7 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
     }
 
 
-    public class GroupViewHolder extends RecyclerView.ViewHolder {
+    class GroupViewHolder extends RecyclerView.ViewHolder {
         private ImageView mImageViewIcon;
         private TextView mTextViewName;
         private TextView mTextViewValue;
@@ -122,7 +123,7 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
 
 
 
-        public GroupViewHolder(View view) {
+        private GroupViewHolder(View view) {
             super(view);
             mImageViewIcon = view.findViewById(R.id.iv_icon_group_item);
             mTextViewName = view.findViewById(R.id.tv_item_name);
@@ -135,7 +136,7 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
             mImageViewIcon.setOnDragListener(new DragListener(mContext));
         }
 
-        public void loadTransactionGroup(int position) {
+        private void loadTransactionGroup(int position) {
             if (transactionGroups != null) {
                 mCurrentTransactionGroup = transactionGroups.get(position);
                 int color = IconsManager.setColorBasedOnType(mContext,mCurrentTransactionGroup.getType());
@@ -153,7 +154,7 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
         }
 
 
-        public void loadAddNewButton(){
+        private void loadAddNewButton(){
             Drawable addNewIcon  = IconsManager.createNewIcon(mContext,CommunityMaterial.Icon.cmd_plus_circle,Color.LTGRAY,56);
             mImageViewIcon.setImageDrawable(addNewIcon);
             mImageViewIcon.setOnClickListener(mOnClickNewItemListener);
@@ -191,8 +192,8 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
                 public boolean onDoubleTap(MotionEvent e) {
 
                     AlertDialog.Builder alert = new AlertDialog.Builder(mContext);
-                    alert.setTitle("Delete Group");
-                    alert.setMessage("Are you sure you want to delete this group?");
+                    alert.setTitle(R.string.delete_group_title);
+                    alert.setMessage(R.string.delete_group_message);
                     alert.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             transactionGroups.remove(getAdapterPosition());

@@ -125,6 +125,7 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
         if (mDatabase == null) {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             if (savedInstanceState == null) {
+
                 try {
                     database.setPersistenceEnabled(true); //To work with offline data too
                 }catch (Exception e){
@@ -292,7 +293,7 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_help) {
             return true;
         }
 

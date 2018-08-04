@@ -16,41 +16,69 @@
         android:layout_centerVertical="true"
         android:visibility="gone"
         />
+    <TextView
+        android:id="@+id/tv_revenue_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="10dp"
+        android:paddingTop="10dp"
+        android:textStyle="bold"
+        android:text="@string/revenues"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_revenues"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp" />
+        android:paddingStart="10dp"
+        android:layout_below="@+id/tv_revenue_title"/>
 
+    <TextView
+        android:id="@+id/tv_deposits_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="10dp"
+        android:textStyle="bold"
+        android:text="@string/deposits"
+        android:layout_below="@+id/rv_revenues"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_deposits"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:layout_below="@id/rv_revenues"/>
+        android:paddingStart="10dp"
+        android:layout_below="@id/tv_deposits_title"/>
+
+    <TextView
+        android:id="@+id/tv_expenses_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="10dp"
+        android:textStyle="bold"
+        android:text="@string/expenses"
+        android:layout_below="@+id/rv_deposits"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_expenses"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:layout_below="@id/rv_deposits"/>
+        android:paddingStart="10dp"
+        android:layout_below="@id/tv_expenses_title"/>
     <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:stretchColumns="*"
-        android:padding="10dp"
+        android:padding="20dp"
         android:gravity = "bottom">
         <TableRow>
             <TextView
-                android:text="Total Revenue"
+                android:text="@string/total_revenue"
                 android:gravity="center"
+                android:textStyle="bold"
                 android:padding="3dp" />
             <TextView
-                android:text="Total Expenses"
+                android:text="@string/total_expenses"
                 android:gravity="center"
+                android:textStyle="bold"
                 android:padding="3dp" />
         </TableRow>
 
@@ -58,11 +86,13 @@
             <TextView
                 android:id="@+id/tv_total_revenue"
                 android:text=""
+                android:textColor="@color/colorPrimary"
                 android:gravity="center"
                 android:padding="3dip" />
             <TextView
                 android:id="@+id/tv_total_expenses"
                 android:text=""
+                android:textColor="@color/red"
                 android:gravity="center"
                 android:padding="3dip" />
         </TableRow>
