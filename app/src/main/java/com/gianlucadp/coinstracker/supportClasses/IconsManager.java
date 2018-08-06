@@ -15,6 +15,7 @@ public class IconsManager {
     private static CommunityMaterial.Icon[] availableIcons = {
             CommunityMaterial.Icon.cmd_circle,
             CommunityMaterial.Icon.cmd_star,
+            CommunityMaterial.Icon.cmd_briefcase,
             CommunityMaterial.Icon.cmd_home,
             CommunityMaterial.Icon.cmd_phone,
             CommunityMaterial.Icon.cmd_airplane,
@@ -28,6 +29,7 @@ public class IconsManager {
             CommunityMaterial.Icon.cmd_bus,
             CommunityMaterial.Icon.cmd_cat,
             CommunityMaterial.Icon.cmd_coffee,
+            CommunityMaterial.Icon.cmd_food,
             CommunityMaterial.Icon.cmd_creation,
             CommunityMaterial.Icon.cmd_emoticon,
             CommunityMaterial.Icon.cmd_heart,

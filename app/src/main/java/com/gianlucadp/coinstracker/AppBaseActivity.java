@@ -56,6 +56,9 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
     private static final String CURRENT_FRAGMENT_KEY = "CF_KEY";
     private static final String EXPENSE_KEY = "EXPENSE_KEY";
     private static final String REVENUE_KEY = "REVENUE_KEY";
+    public static final String GROUPS_FRAGMENT = TransactionsListFragment.class.getSimpleName();
+    public static final String HISTORY_FRAGMENT = TransactionsHistoryFragment.class.getSimpleName();
+    public static final String STATISTICS_FRAGMENT = StatisticsFragment.class.getSimpleName();
 
 
     private DrawerLayout mDrawerLayout;
@@ -287,13 +290,18 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_help) {
+            if (currentFragment.equals(GROUPS_FRAGMENT)){
+                Utilities.createDialog(this,getString(R.string.help),getString(R.string.groups_help),getString(R.string.got_it),null,null,null).show();
+            }else if (currentFragment.equals(HISTORY_FRAGMENT)){
+                Utilities.createDialog(this,getString(R.string.help),getString(R.string.history_help),getString(R.string.got_it),null,null,null).show();
+
+            }else if (currentFragment.equals(STATISTICS_FRAGMENT)){
+                Utilities.createDialog(this,getString(R.string.help),getString(R.string.statistics_help),getString(R.string.got_it),null,null,null).show();
+
+            }
             return true;
         }
 
@@ -306,7 +314,7 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
         int id = item.getItemId();
 
         if (id == R.id.menu_item_main_page) {
-            if (!currentFragment.equals(TransactionsListFragment.class.getSimpleName())) {
+            if (!currentFragment.equals(GROUPS_FRAGMENT)) {
                 Fragment newFragment =  new TransactionsListFragment().newInstance(new ArrayList<TransactionGroup>(mRevenuesGroups.values()),new ArrayList<TransactionGroup>(mDepositsGroups.values()),new ArrayList<TransactionGroup>(mExpensesGroups.values()));
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
@@ -319,7 +327,7 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
 
         } else if (id == R.id.menu_item_history) {
 
-            if (!currentFragment.equals(TransactionsHistoryFragment.class.getSimpleName())) {
+            if (!currentFragment.equals(HISTORY_FRAGMENT)) {
                 HashMap<String, TransactionGroup> mergedMap = Utilities.mergeMaps(mRevenuesGroups, mDepositsGroups, mExpensesGroups);
                 Fragment newFragment = new TransactionsHistoryFragment().newInstance(new ArrayList<Transaction>(mTransactions.values()), mergedMap);
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -332,7 +340,7 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
 
         } else if (id == R.id.menu_item_statistics) {
 
-            if (!currentFragment.equals(StatisticsFragment.class.getSimpleName())) {
+            if (!currentFragment.equals(STATISTICS_FRAGMENT)) {
                 Fragment newFragment = new StatisticsFragment().newInstance(new ArrayList<Transaction>(mTransactions.values()));
                 FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
@@ -369,19 +377,16 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
                             case REVENUE:
                                 mRevenuesGroups.put(dataSnapshot.getKey(), transactionGroup);
                                 transactionsListFragment.getRevenueAdapter().addItem(transactionGroup);
-                                Log.d("AAA","revenue added");
 
                                 break;
                             case DEPOSIT:
                                 mDepositsGroups.put(dataSnapshot.getKey(), transactionGroup);
                                 transactionsListFragment.getDepositAdapter().addItem(transactionGroup);
-                                Log.d("AAA","deposit added");
 
                                 break;
                             case EXPENSE:
                                 mExpensesGroups.put(dataSnapshot.getKey(), transactionGroup);
                                 transactionsListFragment.getExpenseAdapter().addItem(transactionGroup);
-                                Log.d("AAA","expense added");
                                 break;
                             default:
                                 break;
@@ -397,8 +402,6 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
                             for (DataSnapshot flow : flowChildren) {
                                 TransactionValue tv = flow.getValue(TransactionValue.class);
                                 tv.setTransactionValueFirebaseId(flow.getKey());
-                                Log.d("AAA","added tv");
-                                Log.d("AAA", String.valueOf(tv.getTransactionId()==null));
                                 transactionGroup.addTransactionValue(tv);
 
                             }
@@ -419,7 +422,6 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
                         }
                         switch (transactionGroup.getType()) {
                             case REVENUE:
-                                Log.d("AAA","revenue changed");
                                 mRevenuesGroups.put(dataSnapshot.getKey(), transactionGroup);
 
                                 if (transactionsListFragment!=null) {
@@ -432,14 +434,12 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
                                     transactionsListFragment.getDepositAdapter().updateGroup(transactionGroup);
                                 }
                                 mTotalRevenues+=transactionGroup.getInitialValue();
-                                Log.d("AAA","deposit changed");
                                 break;
                             case EXPENSE:
                                 mExpensesGroups.put(dataSnapshot.getKey(), transactionGroup);
                                 if (transactionsListFragment!=null) {
                                     transactionsListFragment.getExpenseAdapter().updateGroup(transactionGroup);
                                 }
-                                Log.d("AAA","expense changed");
                                 break;
                             default:
                                 break;
@@ -484,7 +484,6 @@ public class AppBaseActivity extends AppCompatActivity implements NavigationView
                     Transaction transaction = dataSnapshot.getValue(Transaction.class);
                     transaction.setFirebaseId(dataSnapshot.getKey());
                     mTransactions.put(dataSnapshot.getKey(), transaction);
-                    Log.d("AAA", "added transaction");
                     if (transaction.isExpense()){
                         mTotalExpenses+=transaction.getValue();
                         writeTotalValues();

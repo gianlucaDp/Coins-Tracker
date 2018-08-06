@@ -1,6 +1,5 @@
 package com.gianlucadp.coinstracker.adapters;
 
-import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -52,10 +51,6 @@ public class TransactionGroupAdapter extends RecyclerView.Adapter<TransactionGro
         this.elementsType = elementsType;
     }
 
-    public void setTransactionGroups(List<TransactionGroup> groups) {
-        this.transactionGroups = groups;
-        notifyDataSetChanged();
-    }
 
     @Override
     public int getItemCount() {

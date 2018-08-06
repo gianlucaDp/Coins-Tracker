@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'MyAndroidKey'
+            keyPassword 'ciao1234'
+            storeFile file('/keystore/android.jks')
+            storePassword 'ciao1234'
+        }
+    }
     compileSdkVersion 26
     defaultConfig {
         applicationId "com.gianlucadp.coinstracker"
@@ -16,34 +24,32 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
     flavorDimensions "type"
-productFlavors {
-    free {
-        applicationId "com.gianlucadp.coinstracker.free"
-        dimension "type"
-        buildConfigField "String", "BUILD_VARIANT", "\"free\""
+    productFlavors {
+        free {
+            applicationId "com.gianlucadp.coinstracker.free"
+            dimension "type"
+            buildConfigField "String", "BUILD_VARIANT", "\"free\""
+            signingConfig signingConfigs.config
+        }
+        paid {
+            applicationId "com.gianlucadp.coinstracker.paid"
+            dimension "type"
+            buildConfigField "String", "BUILD_VARIANT", "\"paid\""
+            signingConfig signingConfigs.config
+        }
     }
-    paid {
-        applicationId "com.gianlucadp.coinstracker.paid"
-        dimension "type"
-        buildConfigField "String", "BUILD_VARIANT", "\"paid\""
-
-    }
-}
 }
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation 'com.android.support:design:26.1.0'
     implementation 'com.google.android.gms:play-services-auth:15.0.1'
     freeImplementation 'com.google.android.gms:play-services-ads:15.0.1'
-
     // Android Iconics Libraries
-    implementation "com.mikepenz:iconics-core:3.0.4@aar"
+    implementation 'com.mikepenz:iconics-core:3.0.4@aar'
     implementation 'com.mikepenz:community-material-typeface:2.0.46.1@aar'
-
     //Firestore Libraries
     implementation 'com.google.firebase:firebase-core:16.0.1'
     implementation 'com.google.firebase:firebase-database:16.0.1'
@@ -51,13 +57,10 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:16.0.1'
     implementation 'com.google.firebase:firebase-database:16.0.1'
     implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
-
     implementation 'com.android.support:support-v4:26.1.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-
-
     implementation 'com.jjoe64:graphview:4.2.2'
 }
 apply plugin: 'com.google.gms.google-services'

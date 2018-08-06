@@ -38,7 +38,6 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
 
     }
 
-    // define the listener
     public interface TransactionsAdapterListener {
         void onTransactionRemoved(Transaction transaction);
     }
@@ -47,10 +46,7 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
         this.listener = listener;
     }
 
-    public void setTransactions(List<Transaction> transactions) {
-        this.transactions = transactions;
-        notifyDataSetChanged();
-    }
+
 
     @Override
     public int getItemCount() {
@@ -120,7 +116,6 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
                 });
                 alert.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        // close dialog
                         dialog.cancel();
                     }
                 });
@@ -182,8 +177,5 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
 
 
     }
-
-
-
 
 }

@@ -8,6 +8,7 @@
         android:id="@+id/im_no_statistic"
         android:layout_width="160dp"
         android:layout_height="160dp"
+        android:contentDescription="@string/no_statistics_available"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:visibility="gone"/>
@@ -17,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/im_no_statistic"
         android:layout_centerHorizontal="true"
-        android:text="No transactions available"
+        android:text="@string/no_transactions_available"
         android:visibility="gone" />
 
     <ScrollView

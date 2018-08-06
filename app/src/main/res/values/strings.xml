@@ -4,24 +4,24 @@
     <string name="transaction_history">Transaction History</string>
     <string name="statistics">Statistics</string>
     <string name="signout">Log off</string>
-    <string name="title_activity_navigation_drawer">NavigationDrawer</string>
+    <string name="title_activity_navigation_drawer" translatable="false">NavigationDrawer</string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
+    <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
 
     <string name="action_help">Help</string>
-    <string name="title_activity_new_group">NewGroupActivity</string>
+    <string name="title_activity_new_group" translatable="false">NewGroupActivity</string>
     <string name="select_an_icon">Select an Icon</string>
     <string name="insert_name_group">Insert Name Here</string>
 
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
     <string name="title_activity_new_transaction">New Transaction</string>
     <string name="add_new">Add new</string>
     <string name="initial_value">Initial Value</string>
 
     <string name="charging_reminder_notification_title">Have you inserted your expenses today?</string>
     <string name="charging_reminder_notification_body">Keep your expenses under control! Click here to open the app!</string>
-    <string name="main_notification_channel_name">Primary</string>
+    <string name="main_notification_channel_name" translatable="false">Primary</string>
     <string name="delete_transaction_message">Are you sure you want to delete this transaction?</string>
     <string name="delete_transaction_title">Delete Transaction</string>
     <string name="insert_new_group_title">Insert New Group</string>
@@ -36,5 +36,28 @@
     <string name="deposits">Deposits</string>
     <string name="total_revenue">Total Revenue</string>
     <string name="total_expenses">Total Expenses</string>
+    <string name="from_group_icon" translatable="false">from group icon</string>
+    <string name="arrow" translatable="false">arrow</string>
+    <string name="to_group_icon" translatable="false">to group icon</string>
+    <string name="icon" translatable="false">icon</string>
+    <string name="notes">Notes</string>
+    <string name="amount" translatable="false">Amount</string>
+    <string name="date">Date</string>
+    <string name="number_zero" translatable="false">0</string>
+    <string name="help">Help</string>
+    <string name="groups_help"><![CDATA[Press the add new button to insert new groups, then drag & drop elements from one group to another to generate a transaction. To delete a group double click it]]></string>
+    <string name="got_it">Got it</string>
+    <string name="history_help">This is the list of the transactions done. Long press on one to delete it</string>
+    <string name="statistics_help">This graph contains the expenses (in red) and revenues (in green) overtime</string>
+    <string name="not_enough_data_to_generate_graph">Not enough data to generate graph</string>
+    <string name="no_statistics_available">No statistics available</string>
+    <string name="incomes">Incomes</string>
+    <string name="min">Min</string>
+    <string name="max">Max</string>
+    <string name="mean">Mean</string>
+    <string name="deposits_value_error">Deposits without initial value cannot be created</string>
+    <string name="group_name_error">Groups without name cannot be created</string>
+    <string name="date_icon" translatable="false">Date icon</string>
+    <string name="no_transactions_available">No transactions available</string>
 
 </resources>

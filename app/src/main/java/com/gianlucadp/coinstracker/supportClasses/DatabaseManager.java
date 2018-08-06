@@ -57,7 +57,6 @@ public class DatabaseManager {
     public static void addTransactionDetailsInGroup(Transaction transaction){
         TransactionValue transactionValueIN = new TransactionValue(transaction.getFirebaseId(),transaction.getValue(),false);
         TransactionValue transactionValueOUT = new TransactionValue(transaction.getFirebaseId(),transaction.getValue(),transaction.isExpense());
-        Log.d("AAA",String.valueOf(transaction.getFirebaseId()==null));
         mDatabase.child("users").child(mUserId).child("transaction_groups").child(transaction.getFromGroup()).child("flows").push().setValue(transactionValueOUT);
         mDatabase.child("users").child(mUserId).child("transaction_groups").child(transaction.getToGroup()).child("flows").push().setValue(transactionValueIN);
     }

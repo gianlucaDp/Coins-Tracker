@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Coins Tracker</string>
+    <string name="main_page_name">Pagina Principale</string>
+    <string name="transaction_history">Storia Transazioni</string>
+    <string name="statistics">Statistiche</string>
+    <string name="signout">Log out</string>
+    <string name="action_help">Aiuto</string>
+    <string name="select_an_icon">Seleziona un\'icona</string>
+    <string name="insert_name_group">Inserisci un nome</string>
+    <string name="title_activity_new_transaction">Nuova Transazione</string>
+    <string name="add_new">Aggiungi nuovo</string>
+    <string name="initial_value">Valore iniziale</string>
+    <string name="charging_reminder_notification_title">Hai inserito le tue spese oggi?</string>
+    <string name="charging_reminder_notification_body">Controlla le tue spese, apri l\'app!</string>
+    <string name="delete_transaction_message">Sicuro di voler cancellare questa transazione?</string>
+    <string name="delete_transaction_title">Elimina transazione</string>
+    <string name="insert_new_group_title">Inserisci nuovo gruppo</string>
+    <string name="cancel">Annulla</string>
+    <string name="confirm">Conferma</string>
+    <string name="delete_group_title">Elimina gruppo</string>
+    <string name="delete_group_message">Sicuro di voler cancellare questo gruppo?</string>
+    <string name="today">Oggi</string>
+    <string name="please_insert_value">Per favore inserisci una daa</string>
+    <string name="revenues">Introiti</string>
+    <string name="expenses">Spese</string>
+    <string name="deposits">Depositi</string>
+    <string name="total_revenue">Introiti totali</string>
+    <string name="total_expenses">Spese totali</string>
+    <string name="notes">Note</string>
+    <string name="date">Data</string>
+    <string name="help">Aiuto</string>
+    <string name="groups_help"><![CDATA[ Aggiungi nuovi gruppi, Poi trascina un gruppo su un\'altro per generare una transazione]]></string>
+    <string name="got_it">Capito</string>
+    <string name="history_help">Questa è la lista delle transazioni effettuate. Tieni premuto per cancellare</string>
+    <string name="statistics_help">Questo grafico contiene le spese (in rosso) e le entrate (in verde)</string>
+    <string name="not_enough_data_to_generate_graph">Non abbastanza dati per generare il grafico</string>
+    <string name="no_statistics_available">Nessuna statistica a disposizione</string>
+    <string name="incomes">Entrate</string>
+    <string name="min">Min</string>
+    <string name="max">Max</string>
+    <string name="mean">Medi</string>
+    <string name="deposits_value_error">Impossibile creare depositi senza valore iniziale</string>
+    <string name="group_name_error">Impossibile creare gruppi senza nome</string>
+    <string name="no_transactions_available">Nessuna transazione disponibile</string>
+</resources>

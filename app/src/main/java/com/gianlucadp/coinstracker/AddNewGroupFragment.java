@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -114,14 +115,16 @@ public class AddNewGroupFragment extends DialogFragment implements AdapterView.O
                                             transactionGroup = new TransactionGroup(type, mGroupName.getText().toString(), mGroupIcon, Float.valueOf(mInitialValue.getText().toString()));
                                             mCallback.onGroupCreated(transactionGroup);
                                         }else{
-                                            mInitialValue.setError(getString(R.string.please_insert_value),getActivity().getDrawable(R.drawable.ic_warning_24dp));
-                                            //TODO: ADD SNACKBAR
+                                            mInitialValue.setError(getString(R.string.please_insert_value));
+                                            Snackbar.make(getActivity().findViewById(R.id.fm_fragments_container),
+                                                    R.string.deposits_value_error, Snackbar.LENGTH_LONG).show();
                                         }
 
                                     }
                                 }else{
-                                 mGroupName.setError(getString(R.string.please_insert_value),getActivity().getDrawable(R.drawable.ic_warning_24dp));
-                                    //TODO: ADD SNACKBAR
+                                 mGroupName.setError(getString(R.string.please_insert_value));
+                                    Snackbar.make(getActivity().findViewById(R.id.fm_fragments_container),
+                                            R.string.group_name_error, Snackbar.LENGTH_LONG).show();
                                 }
 
                             }

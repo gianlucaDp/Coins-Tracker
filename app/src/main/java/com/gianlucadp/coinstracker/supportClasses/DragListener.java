@@ -58,7 +58,7 @@ public class DragListener implements View.OnDragListener {
                         mContext.getApplicationContext().startActivity(createTransaction);
                     }
                 }else {
-                    Log.d("AAA",String.valueOf(v.getId()));
+                    //Do nothing
                 }
                 break;
         }

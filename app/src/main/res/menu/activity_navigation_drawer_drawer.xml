@@ -21,7 +21,7 @@
         <item
             android:id="@+id/signout"
             android:title="@string/signout"
-            android:icon="@drawable/ic_menu_share"/>
+            android:icon="@drawable/ic_clear_black_24dp"/>
     </group>
 
 

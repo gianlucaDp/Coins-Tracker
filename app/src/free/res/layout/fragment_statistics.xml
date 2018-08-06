@@ -11,6 +11,7 @@
         android:layout_width="160dp"
         android:layout_height="160dp"
         android:layout_centerHorizontal="true"
+        android:contentDescription="@string/no_statistics_available"
         android:visibility="invisible"/>
     <ProgressBar
         android:id="@+id/pb_loading"
@@ -25,7 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/im_no_statistic"
         android:layout_centerHorizontal="true"
-        android:text="Not enough data to generate graph"
+        android:text="@string/not_enough_data_to_generate_graph"
         android:visibility="invisible" />
     <com.jjoe64.graphview.GraphView
     android:layout_width="match_parent"
@@ -46,20 +47,24 @@
                 android:gravity="center"
                 android:padding="3dp" />
             <TextView
-            android:text="Incomes"
-            android:gravity="center"
-            android:padding="3dp" />
-            <TextView
-                android:text="Expenses"
+                android:text="@string/incomes"
                 android:gravity="center"
-                android:padding="3dp" />
+                android:padding="3dp"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"/>
+            <TextView
+                android:text="@string/expenses"
+                android:gravity="center"
+                android:padding="3dp"
+                android:textColor="@color/red"
+                android:textStyle="bold"/>
         </TableRow>
 
         <TableRow>
             <TextView
-                android:text="Min"
+                android:text="@string/min"
                 android:gravity="center"
-
+                android:textStyle="bold"
                 android:padding="3dp" />
             <TextView
                 android:id="@+id/tv_min_income"
@@ -75,8 +80,9 @@
 
         <TableRow>
             <TextView
-                android:text="Max"
+                android:text="@string/max"
                 android:gravity="center"
+                android:textStyle="bold"
                 android:padding="3dp" />
             <TextView
                 android:id="@+id/tv_max_income"
@@ -92,7 +98,8 @@
 
         <TableRow>
             <TextView
-                android:text="Mean"
+                android:text="@string/mean"
+                android:textStyle="bold"
                 android:gravity="center"
                 android:padding="3dip" />
             <TextView

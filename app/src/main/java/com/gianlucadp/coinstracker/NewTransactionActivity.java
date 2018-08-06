@@ -33,7 +33,7 @@ private EditText mEtTransactionNotes;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_transaction);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar()!=null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -55,7 +55,6 @@ private EditText mEtTransactionNotes;
             public void onClick(View view) {
                 showDatePickerDialog(view);
             }
-            ;
         });
 
         fab.setOnClickListener(new View.OnClickListener() {
@@ -71,7 +70,7 @@ private EditText mEtTransactionNotes;
                     DatabaseManager.addTransaction(transaction);
                     finish();
                 }else{
-                    mEtTransactionValue.setError(getString(R.string.please_insert_value),getDrawable(R.drawable.ic_warning_24dp));
+                    mEtTransactionValue.setError(getString(R.string.please_insert_value));
                 }
             }
         });
@@ -83,7 +82,6 @@ private EditText mEtTransactionNotes;
                 showDatePickerDialog(view);
             }
 
-            ;
         });
     }
 

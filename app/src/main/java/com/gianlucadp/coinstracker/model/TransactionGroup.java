@@ -3,7 +3,6 @@ package com.gianlucadp.coinstracker.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 
 import com.google.firebase.database.Exclude;
 import com.mikepenz.community_material_typeface_library.CommunityMaterial;
@@ -23,9 +22,9 @@ private List<TransactionValue> transactionsValue = new ArrayList<>();
 private String firebaseId;
 
 
-public TransactionGroup(){};
+public TransactionGroup(){}
 
-public TransactionGroup(GroupType type,String name, CommunityMaterial.Icon imageId){
+    public TransactionGroup(GroupType type,String name, CommunityMaterial.Icon imageId){
     this.type = type;
     this.name = name;
     this.imageId = imageId;

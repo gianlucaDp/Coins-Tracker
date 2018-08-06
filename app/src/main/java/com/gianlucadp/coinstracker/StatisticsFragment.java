@@ -75,7 +75,6 @@ public class StatisticsFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        Log.d("AAA", "Start of on view created");
         mGraphView = view.findViewById(R.id.graph);
         mMinIncome = view.findViewById(R.id.tv_min_income);
         mMaxIncome = view.findViewById(R.id.tv_max_income);
@@ -318,9 +317,6 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
                 mGraphView.getGridLabelRenderer().setHumanRounding(false);
                 mGraphView.setVisibility(View.VISIBLE);
 
-
-
-
             }else{
                 //Else no points are available, load sad face
                 Drawable noDataDrawable = IconsManager.createNewIcon(getContext(), CommunityMaterial.Icon.cmd_emoticon_sad, Color.LTGRAY,160);
@@ -333,10 +329,10 @@ public static  <T extends Comparable<? super T>> List<T> asSortedList(Collection
 
             if(mMinOut==Float.MAX_VALUE){
                 mMinOut = 0;
-            };
+            }
             if(mMinIn==Float.MAX_VALUE){
                 mMinIn = 0;
-            };
+            }
 
 
             mMinIncome.setText(String.valueOf(mMinIn));

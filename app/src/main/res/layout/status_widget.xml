@@ -1,30 +1,54 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
-    android:padding="10dp"
-    android:orientation="vertical">
+    android:background="@color/colorPrimaryDark"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/iv_widget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/ic_launcher_round"
+        android:contentDescription="@string/icon"
+        android:paddingEnd="10dp"/>
+    <TextView
+        android:id="@+id/tv_revenue_widget"
+        android:text="@string/revenues"
+        android:textSize="18sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/yellow"
+        android:layout_toEndOf="@+id/iv_widget"/>
+
+    <TextView
+        android:id="@+id/tv_expenses_widget"
+        android:text="@string/expenses"
+        android:textSize="18sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/red"
+        android:layout_below="@+id/tv_revenue_widget"
+        android:layout_toEndOf="@+id/iv_widget"/>
 
     <TextView
         android:id="@+id/appwidget_expenses"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_margin="8dp"
-        android:text="this_is_wie"
-        android:textColor="@color/yellow"
-        android:textSize="24sp"
-        android:textStyle="bold|italic" />
+        android:text=""
+        android:paddingStart="10dp"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:layout_toEndOf="@id/tv_revenue_widget"/>
 
     <TextView
         android:id="@+id/appwidget_revenues"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="this_is_wie"
-        android:textColor="@color/yellow"
-        android:textSize="24sp"
-        android:padding="10dp"
-        android:textStyle="bold|italic"/>
+        android:text=""
+        android:paddingStart="10dp"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:layout_toEndOf="@id/tv_expenses_widget"
+        android:layout_below="@+id/appwidget_expenses"/>
 
-</LinearLayout>
+</RelativeLayout>

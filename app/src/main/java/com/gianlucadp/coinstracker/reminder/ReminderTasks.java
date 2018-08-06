@@ -9,11 +9,11 @@ public class ReminderTasks {
 
     public static void executeTask(Context context, String action) {
         if (INSERT_TRANSACTION_REMINDER.equals(action)) {
-            issueChargingReminder(context);
+            issueTransactionReminder(context);
         }
     }
 
-    private static void issueChargingReminder(Context context) {
-        ReminderUtilities.remindUserBecauseCharging(context);
+    private static void issueTransactionReminder(Context context) {
+        ReminderUtilities.remindUserToInsertTransaction(context);
     }
 }

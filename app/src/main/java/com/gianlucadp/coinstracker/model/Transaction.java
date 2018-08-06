@@ -6,8 +6,6 @@ import android.os.Parcelable;
 
 import com.google.firebase.database.Exclude;
 
-import java.util.Date;
-
 public class Transaction implements Parcelable {
     private String fromGroup;
     private String toGroup;

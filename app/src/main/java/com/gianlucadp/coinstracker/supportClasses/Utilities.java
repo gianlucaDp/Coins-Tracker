@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 
 import com.gianlucadp.coinstracker.model.Transaction;
@@ -50,10 +51,10 @@ public class Utilities {
         return  d;
     }
 
-    public static AlertDialog showDialog(Context ctx, String title, String msg,
-                                  String btn1, String btn2,
-                                  DialogInterface.OnClickListener listener1,
-                                  DialogInterface.OnClickListener listener2) {
+    public static AlertDialog createDialog(Context ctx, String title, String msg,
+                                           String btn1, String btn2,
+                                           DialogInterface.OnClickListener listener1,
+                                           DialogInterface.OnClickListener listener2) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx)
                 .setTitle(title)
