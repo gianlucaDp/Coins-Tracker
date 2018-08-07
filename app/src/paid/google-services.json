@@ -1,0 +1,167 @@
+{
+  "project_info": {
+    "project_number": "857197992959",
+    "firebase_url": "https://coins-tracker-a25e7.firebaseio.com",
+    "project_id": "coins-tracker-a25e7",
+    "storage_bucket": "coins-tracker-a25e7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:857197992959:android:a0023d0a5deb1dde",
+        "android_client_info": {
+          "package_name": "com.gianlucadp.coinstracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "857197992959-684q5c9b6p0aftmbc1i57ihne00295ge.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gianlucadp.coinstracker",
+            "certificate_hash": "7535cd7e52e3bc68d0628f27fbd74acf7fe01602"
+          }
+        },
+        {
+          "client_id": "857197992959-8ohg5kejse9kt57ukklhnfpd0h3mkhqf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gianlucadp.coinstracker",
+            "certificate_hash": "5e9f35a71d9f3ba50087932c0fa3ae63422cb6ee"
+          }
+        },
+        {
+          "client_id": "857197992959-g93r3epapj9eldfmpdrpb80bd9teudk3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4zYUlVjPvpT46c1yP0Bs7wWtcn3oN-yU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "857197992959-g93r3epapj9eldfmpdrpb80bd9teudk3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:857197992959:android:afb24758cd6527d4",
+        "android_client_info": {
+          "package_name": "com.gianlucadp.coinstracker.free"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "857197992959-0p47s81blh7lg9i98nqj1a49qt49dsd1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gianlucadp.coinstracker.free",
+            "certificate_hash": "7535cd7e52e3bc68d0628f27fbd74acf7fe01602"
+          }
+        },
+        {
+          "client_id": "857197992959-c4tucsodt2q98p4ckrtktahgmcevnkcu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gianlucadp.coinstracker.free",
+            "certificate_hash": "5e9f35a71d9f3ba50087932c0fa3ae63422cb6ee"
+          }
+        },
+        {
+          "client_id": "857197992959-g93r3epapj9eldfmpdrpb80bd9teudk3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4zYUlVjPvpT46c1yP0Bs7wWtcn3oN-yU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "857197992959-g93r3epapj9eldfmpdrpb80bd9teudk3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:857197992959:android:4add76aa347bb0bd",
+        "android_client_info": {
+          "package_name": "com.gianlucadp.coinstracker.paid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "857197992959-q5ksjvpngqaadjcp4a0afj568vmqt3rk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gianlucadp.coinstracker.paid",
+            "certificate_hash": "7535cd7e52e3bc68d0628f27fbd74acf7fe01602"
+          }
+        },
+        {
+          "client_id": "857197992959-3fsqqk8p7jdqrm9l475qmnplgkknbptc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gianlucadp.coinstracker.paid",
+            "certificate_hash": "5e9f35a71d9f3ba50087932c0fa3ae63422cb6ee"
+          }
+        },
+        {
+          "client_id": "857197992959-g93r3epapj9eldfmpdrpb80bd9teudk3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4zYUlVjPvpT46c1yP0Bs7wWtcn3oN-yU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "857197992959-g93r3epapj9eldfmpdrpb80bd9teudk3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
