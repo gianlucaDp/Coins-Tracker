@@ -17,9 +17,11 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.config
     }
     buildTypes {
         release {
+            signingConfig signingConfigs.config
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -64,3 +66,5 @@ dependencies {
     implementation 'com.jjoe64:graphview:4.2.2'
 }
 apply plugin: 'com.google.gms.google-services'
+
+task installRelease(group: 'install',dependsOn: "installFreeRelease") {}
